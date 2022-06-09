@@ -90,32 +90,29 @@ export default {
       this.testLandmark[data.id] = data.landmarks;
     });
 
-    this.myVideo = document.getElementById(`remote${this.myInfo.profile.id}`);
-
-    const main = async () => {
-      // 소켓 연결
-      // this.socket = io("http://localhost:3065/game", {
-      //   transports: ["websocket"],
-      // });
-      // 자기 비디오랑 캔버스
-      if (this.myVideo) {
-        this.myCanvas = document.getElementsByClassName(
-          `output_canvas${this.myInfo.profile.id}`
-        )[0];
-        this.myCtx = this.myCanvas.getContext("2d");
-
-        // await this.handCognition();
-        await this.myFace();
+    const myVideoElement = document.getElementById(
+      `remote${this.myInfo.profile.id}`
+    );
+    const myCanvas = document.getElementsByClassName(
+      `output_canvas${this.myInfo.profile.id}`
+    )[0];
+    const myCtx = myCanvas.getContext("2d");
+    // 소켓 연결
+    // this.socket = io("http://localhost:3065/game", {
+    //   transports: ["websocket"],
+    // });
+    // 자기 비디오랑 캔버스
+    if (myVideoElement) {
+      // await this.handCognition();
+      await this.myFace(myVideoElement, myCanvas, myCtx);
+    }
+    // 타인의 스트림만큼 캔버스에 메모 그리기
+    console.log("roomMembers:" + JSON.stringify(this.roomMembers));
+    for (const data of this.roomMembers) {
+      if (data.id !== this.myInfo.profile.id) {
+        await this.faceMemo(data);
       }
-      // 타인의 스트림만큼 캔버스에 메모 그리기
-      console.log("roomMembers:" + JSON.stringify(this.roomMembers));
-      for (const data of this.roomMembers) {
-        if (data.id !== this.myInfo.profile.id) {
-          await this.faceMemo(data);
-        }
-      }
-    };
-    main();
+    }
   },
   async beforeDestroy() {
     console.log("beforeunload");
@@ -130,11 +127,7 @@ export default {
   },
   // 해야할일, 투표
   methods: {
-    async myFace() {
-      const videoElement = this.myVideo;
-      const canvasElement = this.myCanvas;
-      const canvasCtx = this.myCtx;
-
+    async myFace(videoElement, canvasElement, canvasCtx) {
       // videoElement.style.display = "none";
       let model;
 
