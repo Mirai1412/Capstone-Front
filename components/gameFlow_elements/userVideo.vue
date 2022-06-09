@@ -107,9 +107,6 @@ export default {
       punishmentCount: null,
       punishmentNum: null,
       punishmentEmit: null,
-      myVideo: null,
-      myCanvas: null,
-      myCtx: null,
       voteNum: 0,
       voteCount: null,
       nextEvent: null,
@@ -174,25 +171,25 @@ export default {
     // ! 만약 타이머가 종료됐을 경우, 투표를 안한 사람만 넘겨줘야 한다.
     // ! 투표 한 사람이 중복으로 넘겨주면 안됨!!
     this.$nuxt.$on("voteTimeFinish", (data) => {
-      console.log('vote time finish', data);
-      if(!this.voteEmit) this.$emit("voteNumEmit", null);
-      if(this.voteLoading) clearInterval(this.voteLoading);
-      if(this.checkLoading) clearInterval(this.checkLoading);
+      console.log("vote time finish", data);
+      if (!this.voteEmit) this.$emit("voteNumEmit", null);
+      if (this.voteLoading) clearInterval(this.voteLoading);
+      if (this.checkLoading) clearInterval(this.checkLoading);
       this.setInitialVoteData();
     });
     this.$nuxt.$on("punishmentTimeFinish", (data) => {
-      console.log('punishmentTimeFinish', data);
-      if(!this.punishmentEmit) this.$emit("punishmentEmit", null);
-      if(this.punishLoading) clearInterval(this.punishLoading);
+      console.log("punishmentTimeFinish", data);
+      if (!this.punishmentEmit) this.$emit("punishmentEmit", null);
+      if (this.punishLoading) clearInterval(this.punishLoading);
       this.setInitialPunishmentData();
     }),
-    this.$nuxt.$on("skillTimeFinish", (data) => {
-      console.log('vote time finish', data);
-      if(!this.voteEmit) this.$emit("skillNumEmit", null);
-      if(this.voteLoading) clearInterval(this.voteLoading);
-      if(this.checkLoading) clearInterval(this.checkLoading);
-      this.setInitialVoteData();
-    });
+      this.$nuxt.$on("skillTimeFinish", (data) => {
+        console.log("vote time finish", data);
+        if (!this.voteEmit) this.$emit("skillNumEmit", null);
+        if (this.voteLoading) clearInterval(this.voteLoading);
+        if (this.checkLoading) clearInterval(this.checkLoading);
+        this.setInitialVoteData();
+      });
   },
   async mounted() {
     this.myVideo = document.getElementById(`remote${this.myInfo.profile.id}`);
@@ -211,11 +208,11 @@ export default {
     voteResult: function (newVoteResult) {
       console.log("Vote Result", newVoteResult);
 
-      if(newVoteResult <= 0) return;
-      if(newVoteResult) {
-        if(newVoteResult > this.$store.state.stream.roomMembers.length) return;
-        if(this.$store.state.stream.roomMembers[newVoteResult - 1].die) return;
-        if(newVoteResult === this.voteNum) return;
+      if (newVoteResult <= 0) return;
+      if (newVoteResult) {
+        if (newVoteResult > this.$store.state.stream.roomMembers.length) return;
+        if (this.$store.state.stream.roomMembers[newVoteResult - 1].die) return;
+        if (newVoteResult === this.voteNum) return;
       }
 
       this.voteNum = newVoteResult;
@@ -223,13 +220,21 @@ export default {
     },
     checkResult: function (newCheckResult) {
       console.log("Check Result", newCheckResult);
-      if(typeof newCheckResult === 'boolean' && newCheckResult === this.checkNum) return;
+      if (
+        typeof newCheckResult === "boolean" &&
+        newCheckResult === this.checkNum
+      )
+        return;
       this.checkNum = newCheckResult;
       this.changeCheckResult();
     },
     punishmentResult: function (newPunishmentResult) {
       console.log("Punishment Result", newPunishmentResult);
-      if(typeof newPunishmentResult === 'boolean' && newPunishmentResult === this.punishmentNum) return;
+      if (
+        typeof newPunishmentResult === "boolean" &&
+        newPunishmentResult === this.punishmentNum
+      )
+        return;
       this.punishmentNum = newPunishmentResult;
       this.punishmentCheckResult();
     },
@@ -263,10 +268,10 @@ export default {
       return this.skillTrue === false && this.checkNum === true;
     },
     cancelVoteDecision() {
-      return this.skillTrue === false && this.checkNum === false
+      return this.skillTrue === false && this.checkNum === false;
     },
     cancelSkillDecision() {
-      return this.skillTrue === true && this.checkNum === false
+      return this.skillTrue === true && this.checkNum === false;
     },
     startVoteMotion() {
       this.mediaStatus = true;
@@ -305,7 +310,7 @@ export default {
     },
     changeVoteResult() {
       this.voteCount = 0;
-      if(this.voteLoading) clearInterval(this.voteLoading);
+      if (this.voteLoading) clearInterval(this.voteLoading);
       this.voteLoading = setInterval(() => {
         if (this.voteCount < 3) {
           this.voteCount += 1;
@@ -339,7 +344,7 @@ export default {
       this.checkCount = 0;
       clearInterval(this.checkLoading);
       this.checkLoading = setInterval(() => {
-        if (this.checkCount < 3 && typeof this.checkNum === 'boolean') {
+        if (this.checkCount < 3 && typeof this.checkNum === "boolean") {
           this.checkCount += 1;
           console.log(this.checkCount);
         }
@@ -434,7 +439,10 @@ export default {
       clearInterval(this.punishLoading);
       this.punishLoading = setInterval(() => {
         // this.punishLoading의 주소값이 계속 업데이트
-        if (this.punishmentCount < 3 && typeof this.punishmentNum === 'boolean'){
+        if (
+          this.punishmentCount < 3 &&
+          typeof this.punishmentNum === "boolean"
+        ) {
           this.punishmentCount += 1;
           console.log(this.punishmentCount);
         }
