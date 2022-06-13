@@ -192,15 +192,17 @@ export default {
       });
   },
   async mounted() {
-    myVideoElement = document.getElementById(`remote${this.myInfo.profile.id}`);
+    const myVideoElement = document.getElementById(
+      `remote${this.myInfo.profile.id}`
+    );
     if (myVideoElement) {
-      myCanvas = document.getElementsByClassName(
+      const myCanvas = document.getElementsByClassName(
         `output_canvas${this.myInfo.profile.id}`
       )[0];
       if (myCanvas) {
-        myCtx = myCanvas.getContext("2d");
+        const myCtx = myCanvas.getContext("2d");
+        await this.handCognition(myVideoElement, myCanvas, myCtx);
       }
-      await this.handCognition(myVideoElement, myCanvas, myCtx);
     }
   },
 

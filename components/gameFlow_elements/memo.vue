@@ -284,14 +284,10 @@ export default {
             if (imgCitizenHat || imgPoliceHat || imgDoctorHat || imgMafiaHat) {
               const canvasWidth =
                 bottomRightx - topLeftx + (bottomRightx - topLeftx) / 2;
-
               const canvasHeight =
                 bottomRighty - topLefty + (bottomRighty - topLefty) / 2;
-              // console.log(bottomRightx);
-              // const canvasx = bottomRightx - (bottomRightx - topLeftx) / 2;
               const canvasx =
                 topLeftx - canvasWidth / 2 + (bottomRightx - topLeftx) / 2;
-              // const canvasx = bottomRightx - (topLeftx - bottomRightx) / 2;
               const canvasy = topLefty - canvasHeight;
               img.onload = canvasCtx.drawImage(
                 img,
