@@ -199,10 +199,9 @@ export default {
       const myCanvas = document.getElementsByClassName(
         `output_canvas${this.myInfo.profile.id}`
       )[0];
-      if (myCanvas) {
-        const myCtx = myCanvas.getContext("2d");
-        await this.handCognition(myVideoElement, myCanvas, myCtx);
-      }
+
+      const myCtx = myCanvas.getContext("2d");
+      await this.handCognition(myVideoElement, myCanvas, myCtx);
     }
   },
 
