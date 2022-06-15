@@ -19,6 +19,7 @@ export default {
         timer: 5000,
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         backdrop: `
           rgba(130,202,250,0.4)
         `
@@ -36,6 +37,7 @@ export default {
         timer: 5000,
         timerProgressBar: true,
         showConfirmButton: false,
+        allowOutsideClick: false,
         backdrop: `
           rgba(219,0,0,0.4)
         `
