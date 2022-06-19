@@ -130,7 +130,9 @@ export default {
         this.$store.commit("stream/killMember", data.user);
         this.$store.commit("stream/surviveMemberCheck");
         this.$swal({
-          icon : 'success',
+          imageUrl: require('~/assets/ingame/murder.svg'),
+          imageWidth: 100,
+          imageHeight: 100,
           title: '사망자 발생',
           html: data.message,
           timer: 2000,
@@ -150,7 +152,9 @@ export default {
         })
       } else if (data?.user && !data.user.die) {
         this.$swal({
-          icon : 'success',
+          imageUrl: require('~/assets/ingame/save.svg'),
+          imageWidth: 100,
+          imageHeight: 100,
           title: `의사가 ${data.user.nickname} 유저를 마피아로부터 살렸습니다`,
           html: data.message,
           timer: 2000,
@@ -192,8 +196,10 @@ export default {
       this.$forceUpdate();
       // 이걸로 직업 알려주는 모달 이벤트 발생
         this.$swal({
-          icon : 'question',
-          title: data.user,
+          imageUrl: require('~/assets/ingame/detective.svg'),
+          imageWidth: 100,
+          imageHeight: 100,
+          title: '조사완료',
           html: data.message,
           timer: 2000,
           showConfirmButton: false,

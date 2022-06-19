@@ -33,6 +33,7 @@ export default {
     })
 
   },
+
   computed: {
     isRoomOut() {
       return this.$store.state.stream.isRoomOut;

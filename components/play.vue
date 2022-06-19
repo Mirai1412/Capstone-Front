@@ -79,6 +79,9 @@ export default {
       return this.$store.state.stream.surviveMembers;
     },
   },
+
+
+
   data() {
     return {
       electedPlayer: 0, // 마피아로 의심되는 유저 투표
@@ -101,7 +104,14 @@ export default {
     };
   },
   //새로고침 방지 위해서 추가 뒤로가기 하면 로비에서도 적용됨.
+
+  beforeUnmount() {
+    window.removeEventListener('beforeunload', this.unLoadEvent);
+  },
+
   mounted() {
+    window.addEventListener('beforeunload', this.unLoadEvent);
+
     this.$store.commit("stream/loadBackupMembers");
     // let newRemoteFeed = null;
     this.gameSocketSet();
@@ -166,7 +176,7 @@ export default {
 
       // 낮밤 변경
     this.$root.gameSocket.on(GameEvent.DAY, (data) => {
-      console.log("170Code DAY" + data.day);
+
       this.flag = data.day;
       if (data.day === true) {
         this.morningEvent();
@@ -200,8 +210,17 @@ export default {
     });
 
   },
-  created() {},
+  created() {
+
+  },
   methods: {
+    unLoadEvent: function (event) {
+      if (this.canLeaveSite) return;
+
+      event.preventDefault();
+      event.returnValue = '';
+    },
+
     // 게임에 입장하는 즉시 실행되며, 유저의 소켓 정보 받아옴
     gameSocketSet() {
       this.$root.gameSocket.emit(GameEvent.JOIN, {
