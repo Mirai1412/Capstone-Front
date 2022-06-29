@@ -175,7 +175,7 @@ export const mutations = {
   // 게임 시작시 유저들의 직업 정보를 갱신
   setRoomMembersJob(state, data) {
     for (let member of state.roomMembers) {
-      if (member.job != data.job) {
+      if (member.job !== data.job) {
         member.job = data.job;
         break;
       }

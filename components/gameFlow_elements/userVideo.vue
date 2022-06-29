@@ -35,6 +35,7 @@
             :class="`${'output_canvas' + s.id}`"
             :id="['output_canvas' + n]"
             width="640"
+
             height="360"
             class="w-[360px] h-[206px] bg-black rounded border-[3px] border-white"
           >

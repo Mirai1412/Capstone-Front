@@ -103,15 +103,18 @@ export default {
       this.newMessage = `찬성 : ${data.punish} 표`;
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
-      this.punishmentEvent();
       if (data.result) {
+        this.punishmentEvent();
+        this.newMessage = `${data.user.nickname}은 형장의 이슬로 사라집니다.`;
+        this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
+        this.$forceUpdate();
         this.newMessage = `${data.user.nickname}은 ${data.user.job}이었습니다.`;
         this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
         this.$forceUpdate();
         this.$store.commit('stream/killMember', data.user);
         this.$store.commit('stream/surviveMemberCheck');
       } else {
-        this.newMessage = '사형 취소'
+        this.newMessage = `${data.user.nickname}을 사형하지 않습니다.`;
         this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
         this.$forceUpdate();
       }
@@ -195,6 +198,26 @@ export default {
       this.messageLogs.splice(data, 0, this.newMessage);
       this.$forceUpdate();
       // 이걸로 직업 알려주는 모달 이벤트 발생
+      if(data.message === '이 유저의 직업은 MAFIA 입니다.') {
+        this.$swal({
+          imageUrl: require('~/assets/sidebar/mafia.svg'),
+          imageWidth: 100,
+          imageHeight: 100,
+          title: '마피아 발견',
+          color: '#ff0000',
+          html: data.message,
+          timer: 2000,
+          showConfirmButton: false,
+          showClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+          },
+        }).then((result) => {
+          /* Read more about handling dismissals below */
+          if (result.dismiss === this.$swal.DismissReason.timer) {
+            console.log('경찰 능력 공개')
+          }
+        })
+      } else {
         this.$swal({
           imageUrl: require('~/assets/ingame/detective.svg'),
           imageWidth: 100,
@@ -212,6 +235,8 @@ export default {
             console.log('경찰 능력 공개')
           }
         })
+      }
+
     });
 
       // if (data.userNum === null) {
@@ -248,25 +273,25 @@ export default {
     },
     grantMafia() {
       this.newMessage =
-        "당신은 마피아입니다. 오른쪽의 사이드 바에서 자신의 능력과 목표를 확인하세요.";
+        "당신은 마피아입니다. 시민들 사이에서 들키지 않고 시민을 제거해야 합니다. ";
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
     },
     grantPolice() {
       this.newMessage =
-        "당신은 경찰입니다. 오른쪽의 사이드 바에서 자신의 능력과 목표를 확인하세요.";
+        "당신은 경찰입니다. 의사와 시민과 힘을 합쳐 마피아를 찾아야 합니다.";
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
     },
     grantDoctor() {
       this.newMessage =
-        "당신은 의사입니다. 오른쪽의 사이드 바에서 자신의 능력과 목표를 확인하세요.";
+        "당신은 의사입니다. 경찰, 시민과 힘을 합쳐 마피아를 찾아야 합니다.";
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
     },
     grantCitizen() {
       this.newMessage =
-        "당신은 시민입니다. 오른쪽의 사이드 바에서 자신의 목표를 확인하세요.";
+        "당신은 시민입니다. 경찰, 의사와 힘을 합쳐 마피아를 찾아야 합니다.";
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
     },
@@ -290,7 +315,7 @@ export default {
     },
     finishVoteBoard() {
       // 유저 지목 결과를 알리는 메세지를 남김
-      this.newMessage = "의심 투표 결과를 발표 완료!";
+      this.newMessage = "의심 투표 결과를 발표합니다.";
       this.messageLogs.splice(this.messageLogs.length, 0, this.newMessage);
       this.$forceUpdate();
       // * 만약 유저가 특정되었을 경우

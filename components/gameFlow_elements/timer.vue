@@ -76,7 +76,7 @@ export default {
     this.$root.gameSocket.on(GameEvent.TIMER, (data) => {
       console.log(data);
       this.totalSeconds = data.time
-      this.contentProgress += 100/30;
+      this.contentProgress += 100/20;
       if (data.time === 0) {
         if (this.nowEvent === 'morning') {
           this.$emit("startVote")
@@ -119,6 +119,7 @@ export default {
           title: '아침이 되었습니다',
           html: '자유롭게 대화하며 서로에 대해 알아가는 시간입니다.',
           timer: 2000,
+          backdrop: 'rgba(0,0,0)',
           showConfirmButton: false,
           showClass: {
             popup: 'animate__animated animate__fadeOutUp'
@@ -189,7 +190,8 @@ export default {
           html: '마피아, 의사, 경찰은 자신의 능력을 사용합니다.',
           timer: 2000,
           showConfirmButton: false,
-          background: 'rgba(0,0,0,0.6)',
+          backdrop: 'rgba(0,0,0)',
+          background: 'rgba(16,19,66)',
           color: '#ffffff'
           }).then((result) => {
             /* Read more about handling dismissals below */
