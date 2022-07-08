@@ -112,10 +112,10 @@ export default {
       voteCount: null,
       nextEvent: null,
       skillTrue: null,
-      isPuase: false,
       timer: null,
       mediaStatus: true,
       leave: false,
+      selectUser: null,
       options: [
         {
           name: "마피아",
@@ -278,6 +278,7 @@ export default {
     startVoteMotion() {
       this.mediaStatus = true;
       this.skillTrue = false;
+      this.selectUser = null;
       this.voteResults();
     },
     checkVoteMotion() {
@@ -324,8 +325,9 @@ export default {
           console.log("체크 완료");
           this.$swal({
             icon: "success",
-            title: this.voteNum + "번에게 투표",
-            html: "OX 표시를 하여 투표를 확정하거나 취소할 수 있습니다.",
+            title: this.$store.state.stream.roomMembers[this.voteNum - 1]
+                  .nickname + `(${this.voteNum}번) 을(를) 지목합니다.`,
+            html: "OX 표시를 하여 지목을 확정하거나 취소할 수 있습니다.",
             timer: 2000,
             showConfirmButton: false,
           }).then((result) => {
@@ -363,10 +365,10 @@ export default {
 
             this.$swal({
               icon: "success",
-              title: "유저 지목 완료",
+              title: "마피아 의심 완료",
               html:
                 this.$store.state.stream.roomMembers[this.voteNum - 1]
-                  .nickname + "을(를) 마피아로 의심합니다.",
+                  .nickname + "에게 투표합니다.",
               timer: 2000,
               showConfirmButton: false,
             }).then((result) => {
@@ -375,7 +377,7 @@ export default {
                 console.log("check 결과 출력");
               }
             });
-
+            this.selectUser = this.$store.state.stream.roomMembers[this.voteNum - 1].nickname
             console.log("투표 값 넘겨줌" + this.voteNum);
             // 스킬 사용이고, 체크했을 경우
           } else if (this.isSkill()) {
@@ -457,7 +459,7 @@ export default {
             this.$swal({
               icon: "success",
               title: "찬성",
-              html: "사형에 동의합니다",
+              html: `${this.selectUser}의 사형에 동의합니다`,
               timer: 2000,
               showConfirmButton: false,
             }).then((result) => {
@@ -470,7 +472,7 @@ export default {
             this.$swal({
               icon: "success",
               title: "반대",
-              html: "사형에 반대합니다",
+              html: `${this.selectUser}의 사형에 반대합니다`,
               timer: 2000,
               showConfirmButton: false,
             }).then((result) => {
