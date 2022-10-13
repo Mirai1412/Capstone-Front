@@ -7,7 +7,12 @@ import * as tf from "@tensorflow/tfjs";
 export default {
   name: "App",
   components: {},
-  props: ["blind"],
+  props: {
+    blind: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       imgSrc: [],
@@ -247,10 +252,10 @@ export default {
         // 여기가 문제야?
         const landmarks = this.testLandmark[id];
         // 랜드마크로 얼굴 그리기
-        if (landmarks)
-          this.testLandmark[id].landmarks.forEach((landmark) => {
-            canvasCtx.fillRect(landmark[0], landmark[1], 10, 10);
-          });
+        // if (landmarks)
+        //   this.testLandmark[id].landmarks.forEach((landmark) => {
+        //     canvasCtx.fillRect(landmark[0], landmark[1], 10, 10);
+        //   });
 
         // 이미지;
         this.testImage[id].img = new Image();
@@ -261,7 +266,7 @@ export default {
         const imgWidth = img.width;
         const imgHeight = img.height;
 
-        if (!landmarks || this.blind) {
+        if (!landmarks) {
           const canvasWidth = canvasElement.width / 2;
           const canvasHeight = (imgHeight / imgWidth) * canvasWidth;
           const canvasx = canvasElement.width / 2 - canvasWidth / 2;
@@ -345,27 +350,27 @@ export default {
       console.log("이벤트 객체입니다!!@@", event);
       const id = event.item.id;
       switch (event.option.name) {
-        case "시민":
+        case "Citizen":
           this.testImage[id] = {
             imgSrc: require("@/assets/memo/citizen_hat.png"),
           };
           break;
-        case "경찰":
+        case "Police":
           this.testImage[id] = {
             imgSrc: require("@/assets/memo/police_hat.png"),
           };
           break;
-        case "의사":
+        case "Doctor":
           this.testImage[id] = {
             imgSrc: require("@/assets/memo/doctor_hat.png"),
           };
           break;
-        case "마피아":
+        case "Mafia":
           this.testImage[id] = {
             imgSrc: require("@/assets/memo/mafia_hat.png"),
           };
           break;
-        case "메모 삭제":
+        case "Remove Filter":
           this.testImage[id] = {
             imgSrc: "",
           };

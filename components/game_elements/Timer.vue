@@ -3,7 +3,7 @@
     <div
       class="flex exit_button w-32 justify-center items-center rounded-l-full bg-orange-400"
     >
-      남은 시간
+      {{ parseInt(leftTime / 60) }} : {{ leftTime % 60 }}
     </div>
     <div
       class="flex timer w-full items-center mr-2 px-3 rounded-r-full bg-orange-700"
@@ -19,16 +19,22 @@
 </template>
 <script>
 export default {
-  computed: {
-    percentage() {
-      // return this.$store.state.game.timer;
+  props: {
+    turnTime: {
+      type: Number,
+      required: true,
+    },
+    leftTime: {
+      type: Number,
+      required: true,
     },
   },
-  data() {
-    return {
-      percentage: 20,
-      leftTime: 0,
-    };
+  computed: {
+    percentage() {
+      return Math.round(
+        ((this.turnTime - this.leftTime) / this.turnTime) * 100
+      );
+    },
   },
 };
 </script>

@@ -1,7 +1,7 @@
 <template lang="">
   <div class="justify-center h-12">
     <div class="flex h-full">
-      <Timer ref="timer"></Timer>
+      <Timer ref="timer" :turnTime="turnTime" :leftTime="leftTime"></Timer>
       <div
         class="flex exit_button w-32 justify-center items-center rounded-xl bg-yellow-400 transition duration-300 hover:bg-yellow-600 cursor-pointer"
         @click="exit"
@@ -16,6 +16,12 @@ import Timer from "@/components/game_elements/Timer.vue";
 export default {
   components: {
     Timer,
+  },
+  data() {
+    return {
+      turnTime: 60,
+      leftTime: 20,
+    };
   },
   methods: {
     exit() {

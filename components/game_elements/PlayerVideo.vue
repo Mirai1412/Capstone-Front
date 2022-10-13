@@ -2,10 +2,11 @@
   <div class="px-3 py-3 w-full h-1/2">
     <div class="grid grid-cols-5 gap-4 justify-evenly">
       <div
-        class="justify-self-center mx-2 mb-3 w-full rounded border-[3px]"
+        class="justify-self-center mx-2 mb-3 w-full rounded border-[3px] relative"
         v-for="(s, index) in roomMembers"
         :class="`${s.speaking ? 'border-green-500' : 'border-white'}`"
         :key="s.userId"
+        @click.prevent.stop="handleClick($event, s)"
       >
         <div class="aspect-video">
           <div v-if="s.stream">
@@ -24,6 +25,28 @@
               autoplay
               muted
             ></video>
+            <canvas
+              v-if="
+                (status === 'NIGHT' &&
+                  s.nickname !== myInfo.profile.nickname) ||
+                s.die === true
+              "
+              :class="`${'output_canvas' + s.id}`"
+              class="absolute top-0 left-0 aspect-video w-full bg-black"
+              width="640"
+              height="360"
+              :id="['output_canvas' + index]"
+            >
+            </canvas>
+            <canvas
+              v-else
+              :class="`${'output_canvas' + s.id}`"
+              class="absolute top-0 left-0 aspect-video w-full"
+              width="640"
+              height="360"
+              :id="['output_canvas' + index]"
+            >
+            </canvas>
           </div>
         </div>
         <div class="grid grid-cols-4 font-semibold">
@@ -38,12 +61,24 @@
         </div>
       </div>
     </div>
+
+    <Memo ref="memo" :blind="blind"></Memo>
+    <vue-simple-context-menu
+      :elementId="'myUniqueId'"
+      :options="options"
+      :ref="'vueSimpleContextMenu'"
+      @option-clicked="optionClicked"
+    />
   </div>
 </template>
 <script>
+import Memo from "@/components/gameFlow_elements/memo.vue";
 import { GameRoomEvent, GameEvent } from "@/api/mafiaAPI";
 
 export default {
+  components: {
+    Memo,
+  },
   computed: {
     myInfo() {
       return this.$store.getters["user/getMyInfo"];
@@ -53,9 +88,40 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      options: [
+        {
+          name: "Mafia",
+        },
+        {
+          name: "Police",
+        },
+        {
+          name: "Doctor",
+        },
+        {
+          name: "Citizen",
+        },
+        {
+          name: "",
+          type: "divider",
+        },
+        {
+          name: "Remove Filter",
+        },
+      ],
+      blind: false,
+      status: "",
+    };
   },
-  methods: {},
+  methods: {
+    handleClick(event, item) {
+      this.$refs.vueSimpleContextMenu.showMenu(event, item);
+    },
+    optionClicked(event) {
+      this.$refs.memo.optionClicked(event);
+    },
+  },
   mounted() {
     this.$root.roomSocket.on(GameRoomEvent.SPEAK, (data) => {
       // console.log(data)

@@ -1,6 +1,6 @@
 <template lang="">
   <div class="flex pt-3 h-full">
-    <PanelTurn></PanelTurn>
+    <PanelTurn :date="date" :status="status"></PanelTurn>
     <PanelLog></PanelLog>
     <PanelJob></PanelJob>
   </div>
@@ -14,6 +14,12 @@ export default {
     PanelJob,
     PanelLog,
     PanelTurn,
+  },
+  data() {
+    return {
+      date: 0,
+      status: "NIGHT",
+    };
   },
 };
 </script>
