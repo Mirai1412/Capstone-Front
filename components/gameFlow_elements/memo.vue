@@ -205,12 +205,14 @@ export default {
           }
         }
       };
-      videoElement.addEventListener("loadeddata", async () => {
-        const blazeface = require("@tensorflow-models/blazeface");
-        model = await blazeface.load();
+      if (this.videoElement) {
+        videoElement.addEventListener("loadeddata", async () => {
+          const blazeface = require("@tensorflow-models/blazeface");
+          model = await blazeface.load();
 
-        this.myFaceInterval = setInterval(detectFaces, 30);
-      });
+          this.myFaceInterval = setInterval(detectFaces, 30);
+        });
+      }
     },
     postLandmarks(landmarks) {
       const id = this.myInfo.profile.id;

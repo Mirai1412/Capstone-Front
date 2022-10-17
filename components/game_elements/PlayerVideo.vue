@@ -25,32 +25,37 @@
               autoplay
               muted
             ></video>
-            <canvas
-              v-if="
-                (status === 'NIGHT' &&
-                  s.nickname !== myInfo.profile.nickname) ||
-                s.die === true
-              "
-              :class="`${'output_canvas' + s.id}`"
-              class="absolute top-0 left-0 aspect-video w-full bg-black"
-              width="640"
-              height="360"
-              :id="['output_canvas' + index]"
-            >
-            </canvas>
-            <canvas
-              v-else
-              :class="`${'output_canvas' + s.id}`"
-              class="absolute top-0 left-0 aspect-video w-full"
-              width="640"
-              height="360"
-              :id="['output_canvas' + index]"
-            >
-            </canvas>
           </div>
+          <canvas
+            v-if="
+              (status === 'NIGHT' && s.nickname !== myInfo.profile.nickname) ||
+              s.die === true
+            "
+            :class="`${'output_canvas' + s.id}`"
+            class="absolute top-0 left-0 aspect-video w-full bg-black"
+            width="640"
+            height="360"
+            :id="['output_canvas' + index]"
+          >
+          </canvas>
+          <canvas
+            v-else
+            :class="`${'output_canvas' + s.id}`"
+            class="absolute top-0 left-0 aspect-video w-full"
+            width="640"
+            height="360"
+            :id="['output_canvas' + index]"
+          >
+          </canvas>
         </div>
         <div class="grid grid-cols-4 font-semibold">
-          <div class="col-span-1 text-center bg-green-500 text-white">
+          <div
+            v-if="s.die"
+            class="col-span-1 text-center bg-red-500 text-white"
+          >
+            {{ `No.${index + 1}` }}
+          </div>
+          <div v-else class="col-span-1 text-center bg-green-500 text-white">
             {{ `No.${index + 1}` }}
           </div>
           <div

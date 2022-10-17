@@ -39,8 +39,8 @@ export default {
         console.log("TIMER", data);
         this.$refs.game_header.leftTime = data.timer;
 
-        if (currentStatus !== data.status) {
-          if (currentDate !== data.day) {
+        if (this.currentStatus !== data.status) {
+          if (this.currentDate !== data.day) {
             this.currentDate = data.day;
             this.$refs.board.date = data.day;
           }
@@ -66,7 +66,6 @@ export default {
       });
 
       this.$root.gameSocket.on(GameEvent.JOIN, (data) => {
-        console.log("JOIN", data);
         // if (data.join) {
         this.gameStart();
         // }
@@ -75,6 +74,7 @@ export default {
       this.$root.gameSocket.on(GameEvent.START, (data) => {
         console.log("START", data);
         // 이곳에 플레이어 직업 배정 로직이 들어가야함
+        this.$store.commit("stream/setRoomMembers", data.players);
       });
 
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {
