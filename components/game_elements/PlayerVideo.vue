@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <Memo ref="memo" :blind="blind"></Memo>
+    <Memo ref="memo" :status="status"></Memo>
     <vue-simple-context-menu
       :elementId="'myUniqueId'"
       :options="options"
@@ -79,6 +79,14 @@
 <script>
 import Memo from "@/components/gameFlow_elements/memo.vue";
 import { GameRoomEvent, GameEvent } from "@/api/mafiaAPI";
+import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+
+import {
+  fingersCount as vote,
+  check,
+  punishment,
+} from "@/common/detection/hand";
 
 export default {
   components: {
@@ -115,7 +123,9 @@ export default {
           name: "Remove Filter",
         },
       ],
-      blind: false,
+      myVideo: null,
+      myCanvas: null,
+      myCanvasCtx: null,
       status: "",
     };
   },
@@ -126,12 +136,63 @@ export default {
     optionClicked(event) {
       this.$refs.memo.optionClicked(event);
     },
+    async handCognition(videoElement, canvasElement, canvasCtx) {
+      // videoElement.style.display = "none";
+      let onResults = async (results) => {
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        // 기준점을 지정한 크기(x,y)만큼 평행이동함
+        canvasCtx.translate(canvasElement.width, 0);
+
+        canvasCtx.restore();
+      };
+
+      const getMedia = async () => {
+        try {
+          await media();
+        } catch (e) {
+          console.log(e);
+        }
+      };
+      const media = async () => {
+        try {
+          await hands.send({ image: videoElement });
+          requestAnimationFrame(media);
+        } catch (e) {
+          console.log(e);
+        }
+      };
+
+      const hands = new Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        },
+      });
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
+      hands.onResults(onResults);
+      getMedia();
+    },
   },
   mounted() {
     this.$root.roomSocket.on(GameRoomEvent.SPEAK, (data) => {
       // console.log(data)
       this.$store.commit("stream/setSpeaker", data);
     });
+    this.myVideo = document.getElementById(`remote${this.myInfo.profile.id}`);
+    if (this.myVideo) {
+      this.myCanvas = document.getElementsByClassName(
+        `output_canvas${this.myInfo.profile.id}`
+      )[0];
+      if (this.myCanvas) {
+        this.myCtx = this.myCanvas.getContext("2d");
+      }
+      this.handCognition(this.myVideo, this.myCanvas, this.myCtx);
+    }
   },
 };
 </script>

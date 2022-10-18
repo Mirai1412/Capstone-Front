@@ -3,14 +3,15 @@
 <script>
 // import io from "socket.io-client";
 import * as tf from "@tensorflow/tfjs";
+import { GameEvent } from "@/api/mafiaAPI";
 
 export default {
   name: "App",
   components: {},
   props: {
-    blind: {
-      type: Boolean,
-      default: false,
+    status: {
+      type: String,
+      default: "NIGHT",
     },
   },
   data() {
@@ -90,7 +91,7 @@ export default {
         -> Remote track flowing again: 이라 뜸 Janus 문제?
       7. {video 태그 순서}랑 {얼굴 랜드마크 소켓서버로 보낼 때 같이 보낼 유저 정보의 종류}
     */
-    this.$root.gameSocket.on("othersFaceLandmarks", (data) => {
+    this.$root.gameSocket.on(GameEvent.LANDMARK, (data) => {
       // console.log("othersFaceLandmarks", data);
       this.testLandmark[data.id] = data.landmarks;
     });
@@ -136,7 +137,6 @@ export default {
       const videoElement = this.myVideo;
       const canvasElement = this.myCanvas;
       const canvasCtx = this.myCtx;
-
       // videoElement.style.display = "none";
       let model;
 
@@ -163,12 +163,6 @@ export default {
     */
         for (const member of this.$store.state.stream.roomMembers) {
           if (member.id === this.myInfo.profile.id) {
-            if (member.die) {
-              clearInterval(this.myFaceInterval);
-              // console.log("죽었으니 얼굴인식을 종료");
-              return;
-            }
-
             const landmarks = await model.estimateFaces(videoElement, false);
             // 자신의 얼굴 랜드마크 확인
             // console.log(landmarks);
@@ -197,15 +191,21 @@ export default {
             //     canvasCtx.fillRect(landmark[0], landmark[1], 50, 50);
             //   });
             // }
-            if (!this.blind) {
-              await this.postLandmarks(landmarks);
+            if (this.status === "NIGHT") {
+              landmarks[0] = null;
             }
+            if (member.die) {
+              landmarks[0] = null;
+              clearInterval(this.myFaceInterval);
+              // console.log("죽었으니 얼굴인식을 종료");
+            }
+            await this.postLandmarks(landmarks);
 
             canvasCtx.restore();
           }
         }
       };
-      if (this.videoElement) {
+      if (videoElement) {
         videoElement.addEventListener("loadeddata", async () => {
           const blazeface = require("@tensorflow-models/blazeface");
           model = await blazeface.load();
@@ -217,7 +217,7 @@ export default {
     postLandmarks(landmarks) {
       const id = this.myInfo.profile.id;
       // console.log("내 얼굴 랜드마크 보냄", landmarks);
-      this.$root.gameSocket.emit("myFaceLandmarks", {
+      this.$root.gameSocket.emit(GameEvent.LANDMARK, {
         landmarks: landmarks[0],
         id: id,
       });

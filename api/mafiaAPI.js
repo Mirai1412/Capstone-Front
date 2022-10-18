@@ -337,6 +337,7 @@ export const GameEvent = {
   SPEAK: "game:speak",
   CURRENT_VOTE: "game:currentVote",
   GAME_END: "game:end",
+  LANDMARK: "game:landmark",
 };
 
 export const UserEvent = {
