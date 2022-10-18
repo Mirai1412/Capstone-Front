@@ -3,7 +3,6 @@ import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 export const fingersCount = (results, canvasElement, canvasCtx, vStatus) => {
-
   let rightHandLandmarks = {};
   let leftHandLandmarks = {};
   let rightFingersStatus = {
@@ -40,14 +39,14 @@ export const fingersCount = (results, canvasElement, canvasCtx, vStatus) => {
     }
 
     // 랜드마크대로 손 그림
-    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-      color: "#00FF00",
-      lineWidth: 5,
-    });
-    drawLandmarks(canvasCtx, landmarks, {
-      color: "#FF0000",
-      lineWidth: 2,
-    });
+    // drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+    //   color: "#00FF00",
+    //   lineWidth: 5,
+    // });
+    // drawLandmarks(canvasCtx, landmarks, {
+    //   color: "#FF0000",
+    //   lineWidth: 2,
+    // });
   }
   canvasCtx.restore();
 
@@ -62,11 +61,10 @@ export const fingersCount = (results, canvasElement, canvasCtx, vStatus) => {
   if (vStatus) {
     canvasCtx.font = "36px gulim";
     canvasCtx.fillStyle = "rgba(255,255,255)";
-    canvasCtx.strokeText = "rgba(0,0,0)"
+    canvasCtx.strokeText = "rgba(0,0,0)";
     canvasCtx.fillText(
       "몇 번을 지목하겠습니까?",
-      canvasElement.
-      idth / 15,
+      canvasElement.width / 15,
       canvasElement.height / 8
     );
     canvasCtx.fillText(
@@ -81,12 +79,8 @@ export const fingersCount = (results, canvasElement, canvasCtx, vStatus) => {
 
   // console.log(voteResult)
 
-    return voteResult;
-
+  return voteResult;
 };
-
-
-
 
 // 같은 숫자를 2초간 들고 있을 때,
 // 그 값을 이용하여야 한다.

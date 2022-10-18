@@ -80,7 +80,6 @@
 import Memo from "@/components/gameFlow_elements/memo.vue";
 import { GameRoomEvent, GameEvent } from "@/api/mafiaAPI";
 import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
 import {
   fingersCount as vote,
@@ -127,6 +126,10 @@ export default {
       myCanvas: null,
       myCanvasCtx: null,
       status: "",
+      isCheck: false,
+      voteResult: null,
+      checkResult: null,
+      punishmentResult: null,
     };
   },
   methods: {
@@ -139,24 +142,53 @@ export default {
     async handCognition(videoElement, canvasElement, canvasCtx) {
       // videoElement.style.display = "none";
       let onResults = async (results) => {
+        console.log("온리절트", results);
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         // 기준점을 지정한 크기(x,y)만큼 평행이동함
         canvasCtx.translate(canvasElement.width, 0);
 
         canvasCtx.restore();
-      };
 
-      const getMedia = async () => {
-        try {
-          await media();
-        } catch (e) {
-          console.log(e);
+        switch (this.status) {
+          case "VOTE":
+            if (!this.isCheck) {
+              this.voteResult = vote(results, canvasElement, canvasCtx, true);
+            } else {
+              this.checkResult = check(results, canvasElement, canvasCtx, true);
+            }
+            break;
+          case "PUNISHMENT":
+            this.punishmentResult = punishment(
+              results,
+              canvasElement,
+              canvasCtx,
+              true
+            );
+            break;
+          case "NIGHT":
+            if (!this.isCheck) {
+              this.voteResult = vote(results, canvasElement, canvasCtx, true);
+            } else {
+              this.checkResult = check(results, canvasElement, canvasCtx, true);
+            }
+            break;
         }
       };
+
+      // const getMedia = async () => {
+      //   try {
+      //     await media();
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+      // };
       const media = async () => {
         try {
-          await hands.send({ image: videoElement });
+          if (this.status !== "MEETING" && this.status !== "") {
+            console.log("media 실행중", this.status);
+            await hands.send({ image: videoElement });
+          }
           requestAnimationFrame(media);
         } catch (e) {
           console.log(e);
@@ -175,7 +207,8 @@ export default {
         minTrackingConfidence: 0.5,
       });
       hands.onResults(onResults);
-      getMedia();
+      await hands.send({ image: videoElement });
+      media();
     },
   },
   mounted() {
@@ -193,6 +226,23 @@ export default {
       }
       this.handCognition(this.myVideo, this.myCanvas, this.myCtx);
     }
+  },
+  watch: {
+    voteResult: function (newVal, oldVal) {
+      if (newVal) {
+        return;
+      }
+    },
+    checkResult: function (newVal, oldVal) {
+      if (newVal) {
+        return;
+      }
+    },
+    punishmentResult: function (newVal, oldVal) {
+      if (newVal) {
+        return;
+      }
+    },
   },
 };
 </script>
