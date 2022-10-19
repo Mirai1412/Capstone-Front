@@ -139,6 +139,8 @@ export default {
       punishmentResult: null,
       countDown: 0,
       interval: null,
+      hands: null,
+      amIDead: false,
     };
   },
   methods: {
@@ -212,28 +214,37 @@ export default {
       // };
       const media = async () => {
         try {
-          if (this.status !== "MEETING" && this.status !== "") {
-            await hands.send({ image: videoElement });
+          if (
+            this.status !== "MEETING" &&
+            this.status !== "" &&
+            !this.amIDead
+          ) {
+            await this.hands.send({ image: videoElement });
           }
-          requestAnimationFrame(media);
+          if (this.amIDead) {
+            console.log("죽었으니 손 인식 안함");
+            this.handClose();
+            return;
+          }
+          this.animeFrame = requestAnimationFrame(media);
         } catch (e) {
           console.log(e);
         }
       };
 
-      const hands = new Hands({
+      this.hands = new Hands({
         locateFile: (file) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
         },
       });
-      hands.setOptions({
+      this.hands.setOptions({
         maxNumHands: 2,
         modelComplexity: 1,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5,
       });
-      hands.onResults(onResults);
-      await hands.send({ image: videoElement });
+      this.hands.onResults(onResults);
+      await this.hands.send({ image: videoElement });
       media();
     },
     changeVoteResult() {
@@ -272,7 +283,7 @@ export default {
           // 스킬 사용이 아니며(밤이 아니며), O에 체크했을 경우
           if (this.status !== "NIGHT" && this.checkResult) {
             this.$root.gameSocket.emit(GameEvent.VOTE, {
-              vote: this.voteResult,
+              playerVideoNum: this.voteResult,
             });
             this.$swal({
               icon: "success",
@@ -296,7 +307,7 @@ export default {
             switch (this.myJob) {
               case "MAFIA":
                 this.$root.gameSocket.emit(GameEvent.MAFIA, {
-                  userNum: this.voteResult,
+                  playerVideoNum: this.voteResult,
                 });
                 this.$swal({
                   icon: "success",
@@ -315,12 +326,12 @@ export default {
                 break;
               case "POLICE":
                 this.$root.gameSocket.emit(GameEvent.POLICE, {
-                  userNum: this.voteResult,
+                  playerVideoNum: this.voteResult,
                 });
                 break;
               case "DOCTOR":
                 this.$root.gameSocket.emit(GameEvent.DOCTOR, {
-                  userNum: this.voteResult,
+                  playerVideoNum: this.voteResult,
                 });
                 this.$swal({
                   icon: "success",
@@ -374,9 +385,46 @@ export default {
         }
       }, 1000);
     },
+    changePunishmentResult() {
+      this.countDown = 0;
+      clearInterval(this.interval);
+      this.interval = setInterval(() => {
+        if (this.countDown < 3 && this.punishmentResult !== null) {
+          this.countDown += 1;
+        } else if (this.countDown === 3) {
+          clearInterval(this.interval);
+          this.$root.gameSocket.emit(GameEvent.PUNISH, {
+            agree: this.punishmentResult,
+          });
+          this.$swal({
+            icon: "success",
+            title: `${this.punishmentResult ? "찬성" : "반대"}`,
+            html: `${
+              this.punishmentResult ? "사형에 찬성합니다" : "사형에 반대합니다"
+            }`,
+            timer: 2000,
+            showConfirmButton: false,
+          }).then((result) => {
+            /* Read more about handling dismissals below */
+            if (result.dismiss === this.$swal.DismissReason.timer) {
+              console.log("punishment 결과 출력");
+            }
+          });
+          this.punishmentResult = null;
+          this.isCognizing = false;
+          this.interval = null;
+        }
+      }, 1000);
+    },
     resetInterval() {
       clearInterval(this.interval);
       this.interval = null;
+    },
+    handClose() {
+      if (this.amIDead) {
+        console.log("나는 죽었따");
+        this.hands.close();
+      }
     },
   },
   mounted() {
@@ -415,7 +463,8 @@ export default {
       }
     },
     punishmentResult: function (newVal, oldVal) {
-      if (newVal) {
+      if (newVal !== null && newVal !== oldVal) {
+        this.changePunishmentResult();
         return;
       }
     },

@@ -185,8 +185,8 @@ export const mutations = {
     for (let i = 0; i < state.roomMembers.length; i++) {
       console.log(state.roomMembers[i].nickname);
       console.log(data);
-      if (state.roomMembers[i].nickname === data.nickname) {
-        state.roomMembers[i].die = data.die;
+      if (i + 1 === data) {
+        Vue.set(state.roomMembers[i], "die", true);
         stopMediaStream(state.roomMembers[i].stream);
         break;
       }

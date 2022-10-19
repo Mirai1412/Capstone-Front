@@ -1,7 +1,7 @@
 <template lang="">
   <div class="flex pt-3 h-full">
     <PanelTurn :date="date" :status="status"></PanelTurn>
-    <PanelLog></PanelLog>
+    <PanelLog ref="panel_log"></PanelLog>
     <PanelJob></PanelJob>
   </div>
 </template>
@@ -20,6 +20,11 @@ export default {
       date: 0,
       status: "NIGHT",
     };
+  },
+  methods: {
+    addLog(message) {
+      this.$refs.panel_log.addLog(message);
+    },
   },
 };
 </script>

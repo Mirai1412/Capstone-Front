@@ -22,6 +22,13 @@ export default {
     myInfo() {
       return this.$store.getters["user/getMyInfo"];
     },
+    myVideoNum() {
+      return (
+        this.$store.state.stream.roomMembers.findIndex(
+          (e) => e.id == this.myInfo.id
+        ) + 1
+      );
+    },
   },
   data() {
     return {
@@ -84,23 +91,109 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.START, (data) => {
         console.log("START", data);
+
         // 이곳에 플레이어 직업 배정 로직이 들어가야함
         this.$store.commit("stream/setRoomMembers", data.players);
+        // find me from data.players
+        const me = data.players.find((player) => player.id === this.myInfo.id);
+
+        this.$refs.board.addLog(
+          `게임이 시작되었습니다. 당신의 직업은 ${me.job}입니다`
+        );
       });
 
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {
         console.log("GAME_END", data);
+        this.$refs.board.addLog(
+          `게임이 종료되었습니다. ${data.winner}팀이 승리하였습니다`
+        );
+        this.$refs.player_video.handClose();
+        this.$swal({
+          title: `${data.team}팀의 승리입니다.`,
+          html: "잠시 후 게임을 종료하고 로비로 돌아갑니다.",
+          timer: 5000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          backdrop: `
+            ${
+              data.team === "CITIZEN"
+                ? "rgba(130,202,250,0.4)"
+                : "rgba(219,0,0,0.4)"
+            }
+          `,
+        }).then((result) => {
+          if (result.dismiss === this.$swal.DismissReason.timer) {
+            this.$router.push("/lobby");
+            console.log("I was closed by the timer");
+          }
+        });
       });
 
       this.$root.gameSocket.on(GameEvent.VOTE, (data) => {
         console.log("VOTE", data);
+        this.$refs.board.addLog(
+          `Day ${this.currentDate} 투표 결과: ${data.message}`
+        );
+        this.$swal({
+          title: "투표 결과",
+          text: data.message,
+          icon: "info",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      });
+
+      this.$root.gameSocket.on(GameEvent.PUNISH, (data) => {
+        console.log("PUNISH", data);
+        this.$refs.board.addLog(
+          `Day ${this.currentDate} 처형 결과: ${data.message}`
+        );
+        if (data.result) {
+          if (data.playerVideoNum === this.myVideoNum) {
+            this.$refs.player_video.amIDead = true;
+          }
+          this.$store.commit("stream/killMember", data.playerVideoNum);
+        }
+        this.$swal({
+          title: "처형 결과",
+          text: data.message,
+          icon: "info",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       });
 
       this.$root.gameSocket.on(GameEvent.SKILL, (data) => {
         console.log("SKILL", data);
+        this.$refs.board.addLog(`Day ${this.currentDate}: ${data.message}`);
+        if (data.die) {
+          if (data.playerVideoNum === this.myVideoNum) {
+            this.$refs.player_video.amIDead = true;
+          }
+          this.$store.commit("stream/killMember", data.playerVideoNum);
+
+          this.$swal({
+            title: "사망자 발생",
+            text: data.message,
+            icon: "warning",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else {
+          this.$swal({
+            title: "사망자 없음",
+            text: data.message,
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
       });
 
       this.$root.gameSocket.on(GameEvent.POLICE, (data) => {
+        this.$refs.board.addLog(
+          `Day ${this.currentDate} 경찰 능력 사용 결과: ${data.message}`
+        );
         this.$swal({
           imageUrl: require(`~/assets/sidebar/${data.player.job.toLowercase()}.svg`),
           imageWidth: 100,
