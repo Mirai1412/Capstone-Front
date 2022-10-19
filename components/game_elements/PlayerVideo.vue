@@ -98,6 +98,12 @@ export default {
     roomMembers() {
       return this.$store.state.stream.roomMembers ?? [];
     },
+    myJob() {
+      const me = this.$store.state.stream.roomMembers.find((member) => {
+        return member.id === this.myInfo.profile.id;
+      });
+      return me?.job;
+    },
   },
   data() {
     return {
@@ -127,9 +133,12 @@ export default {
       myCanvasCtx: null,
       status: "",
       isCheck: false,
+      isCognizing: false,
       voteResult: null,
       checkResult: null,
       punishmentResult: null,
+      countDown: 0,
+      interval: null,
     };
   },
   methods: {
@@ -142,7 +151,6 @@ export default {
     async handCognition(videoElement, canvasElement, canvasCtx) {
       // videoElement.style.display = "none";
       let onResults = async (results) => {
-        console.log("온리절트", results);
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         // 기준점을 지정한 크기(x,y)만큼 평행이동함
@@ -150,29 +158,48 @@ export default {
 
         canvasCtx.restore();
 
-        switch (this.status) {
-          case "VOTE":
-            if (!this.isCheck) {
-              this.voteResult = vote(results, canvasElement, canvasCtx, true);
-            } else {
-              this.checkResult = check(results, canvasElement, canvasCtx, true);
-            }
-            break;
-          case "PUNISHMENT":
-            this.punishmentResult = punishment(
-              results,
-              canvasElement,
-              canvasCtx,
-              true
-            );
-            break;
-          case "NIGHT":
-            if (!this.isCheck) {
-              this.voteResult = vote(results, canvasElement, canvasCtx, true);
-            } else {
-              this.checkResult = check(results, canvasElement, canvasCtx, true);
-            }
-            break;
+        if (this.isCognizing) {
+          switch (this.status) {
+            case "VOTE":
+              if (!this.isCheck) {
+                this.voteResult = vote(results, canvasElement, canvasCtx, true);
+              } else {
+                this.checkResult = check(
+                  results,
+                  canvasElement,
+                  canvasCtx,
+                  true
+                );
+              }
+              break;
+            case "PUNISHMENT":
+              this.punishmentResult = punishment(
+                results,
+                canvasElement,
+                canvasCtx,
+                true
+              );
+              break;
+            case "NIGHT":
+              if (["MAFIA", "DOCTOR", "POLICE"].includes(this.myJob)) {
+                if (!this.isCheck) {
+                  this.voteResult = vote(
+                    results,
+                    canvasElement,
+                    canvasCtx,
+                    true
+                  );
+                } else {
+                  this.checkResult = check(
+                    results,
+                    canvasElement,
+                    canvasCtx,
+                    true
+                  );
+                }
+              }
+              break;
+          }
         }
       };
 
@@ -186,7 +213,6 @@ export default {
       const media = async () => {
         try {
           if (this.status !== "MEETING" && this.status !== "") {
-            console.log("media 실행중", this.status);
             await hands.send({ image: videoElement });
           }
           requestAnimationFrame(media);
@@ -210,6 +236,148 @@ export default {
       await hands.send({ image: videoElement });
       media();
     },
+    changeVoteResult() {
+      this.countDown = 0;
+      clearInterval(this.interval);
+      this.interval = setInterval(() => {
+        if (this.countDown < 3 && this.voteResult > 0) {
+          this.countDown += 1;
+        } else if (this.countDown === 3) {
+          clearInterval(this.interval);
+          this.$swal({
+            icon: "success",
+            title: this.voteResult + "번에게 투표",
+            html: "OX 표시를 하여 투표를 확정하거나 취소할 수 있습니다.",
+            timer: 2000,
+            showConfirmButton: false,
+          }).then((result) => {
+            /* Read more about handling dismissals below */
+            if (result.dismiss === this.$swal.DismissReason.timer) {
+              console.log("vote 결과 출력");
+            }
+          });
+          this.isCheck = true;
+          this.interval = null;
+        }
+      }, 1000);
+    },
+    changeCheckResult() {
+      this.countDown = 0;
+      clearInterval(this.interval);
+      this.interval = setInterval(() => {
+        if (this.countDown < 3 && this.checkResult !== null) {
+          this.countDown += 1;
+        } else if (this.countDown === 3) {
+          clearInterval(this.interval);
+          // 스킬 사용이 아니며(밤이 아니며), O에 체크했을 경우
+          if (this.status !== "NIGHT" && this.checkResult) {
+            this.$root.gameSocket.emit(GameEvent.VOTE, {
+              vote: this.voteResult,
+            });
+            this.$swal({
+              icon: "success",
+              title: "유저 지목 완료",
+              html:
+                this.$store.state.stream.roomMembers[this.voteResult - 1]
+                  .nickname + "을(를) 마피아로 의심합니다.",
+              timer: 2000,
+              showConfirmButton: false,
+            }).then((result) => {
+              /* Read more about handling dismissals below */
+              if (result.dismiss === this.$swal.DismissReason.timer) {
+                console.log("check 결과 출력");
+              }
+            });
+
+            this.checkResult = null;
+            this.voteResult = null;
+            this.isCognizing = false;
+          } else if (this.status === "NIGHT" && this.checkResult) {
+            switch (this.myJob) {
+              case "MAFIA":
+                this.$root.gameSocket.emit(GameEvent.MAFIA, {
+                  userNum: this.voteResult,
+                });
+                this.$swal({
+                  icon: "success",
+                  title: "유저 지목 완료",
+                  html:
+                    this.$store.state.stream.roomMembers[this.voteResult - 1]
+                      .nickname + "을(를) 살해합니다.",
+                  timer: 2000,
+                  showConfirmButton: false,
+                }).then((result) => {
+                  /* Read more about handling dismissals below */
+                  if (result.dismiss === this.$swal.DismissReason.timer) {
+                    console.log("check 결과 출력");
+                  }
+                });
+                break;
+              case "POLICE":
+                this.$root.gameSocket.emit(GameEvent.POLICE, {
+                  userNum: this.voteResult,
+                });
+                break;
+              case "DOCTOR":
+                this.$root.gameSocket.emit(GameEvent.DOCTOR, {
+                  userNum: this.voteResult,
+                });
+                this.$swal({
+                  icon: "success",
+                  title: "유저 지목 완료",
+                  html:
+                    this.$store.state.stream.roomMembers[this.voteResult - 1]
+                      .nickname + "을(를) 치료합니다.",
+                  timer: 2000,
+                  showConfirmButton: false,
+                }).then((result) => {
+                  /* Read more about handling dismissals below */
+                  if (result.dismiss === this.$swal.DismissReason.timer) {
+                    console.log("check 결과 출력");
+                  }
+                });
+                break;
+            }
+
+            this.checkResult = null;
+            this.voteResult = null;
+            this.isCognizing = false;
+          } else if (this.status !== "NIGHT" && !this.checkResult) {
+            this.$swal({
+              icon: "error",
+              title: "유저 지목 취소",
+              html: "투표를 다시 진행합니다.",
+              timer: 2000,
+              showConfirmButton: false,
+            }).then((result) => {
+              /* Read more about handling dismissals below */
+              if (result.dismiss === this.$swal.DismissReason.timer) {
+                console.log("check 결과 출력");
+              }
+            });
+          } else if (this.status === "NIGHT" && !this.checkResult) {
+            this.$swal({
+              icon: "error",
+              title: "유저 지목 취소",
+              html: "능력을 다시 사용합니다.",
+              timer: 2000,
+              showConfirmButton: false,
+            }).then((result) => {
+              /* Read more about handling dismissals below */
+              if (result.dismiss === this.$swal.DismissReason.timer) {
+                console.log("check 결과 출력");
+              }
+            });
+          }
+          this.isCheck = false;
+          this.interval = null;
+        }
+      }, 1000);
+    },
+    resetInterval() {
+      clearInterval(this.interval);
+      this.interval = null;
+    },
   },
   mounted() {
     this.$root.roomSocket.on(GameRoomEvent.SPEAK, (data) => {
@@ -229,12 +397,20 @@ export default {
   },
   watch: {
     voteResult: function (newVal, oldVal) {
-      if (newVal) {
+      if (
+        newVal !== null &&
+        newVal > 0 &&
+        newVal <= this.$store.state.stream.roomMembers.length &&
+        !this.$store.state.stream.roomMembers[newVal - 1].die &&
+        newVal !== oldVal
+      ) {
+        this.changeVoteResult();
         return;
       }
     },
     checkResult: function (newVal, oldVal) {
-      if (newVal) {
+      if (newVal !== null && newVal !== oldVal) {
+        this.changeCheckResult();
         return;
       }
     },

@@ -51,15 +51,26 @@ export default {
           switch (data.status) {
             case "NIGHT":
               this.$refs.game_header.turnTime = 30;
+              this.$refs.player_video.isCognizing = true;
+              this.$refs.player_video.isCheck = false;
+              this.$refs.player_video.resetInterval();
               break;
             case "MEETING":
               this.$refs.game_header.turnTime = 30;
+              this.$refs.player_video.isCheck = false;
+              this.$refs.player_video.resetInterval();
               break;
             case "VOTE":
               this.$refs.game_header.turnTime = 30;
+              this.$refs.player_video.isCognizing = true;
+              this.$refs.player_video.isCheck = false;
+              this.$refs.player_video.resetInterval();
               break;
             case "PUNISHMENT":
               this.$refs.game_header.turnTime = 30;
+              this.$refs.player_video.isCognizing = true;
+              this.$refs.player_video.isCheck = false;
+              this.$refs.player_video.resetInterval();
               break;
           }
         }
@@ -87,6 +98,24 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.SKILL, (data) => {
         console.log("SKILL", data);
+      });
+
+      this.$root.gameSocket.on(GameEvent.POLICE, (data) => {
+        this.$swal({
+          imageUrl: require(`~/assets/sidebar/${data.player.job.toLowercase()}.svg`),
+          imageWidth: 100,
+          imageHeight: 100,
+          imageAlt: "Custom image",
+          title: data.player.nickname + "을(를) 수사했습니다.",
+          html: `<p>${data.message}</p>`,
+          timer: 2000,
+          showConfirmButton: false,
+        }).then((result) => {
+          /* Read more about handling dismissals below */
+          if (result.dismiss === this.$swal.DismissReason.timer) {
+            console.log("skill 결과 출력");
+          }
+        });
       });
 
       this.$root.gameSocket.emit(GameEvent.JOIN, {
