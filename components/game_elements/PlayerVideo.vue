@@ -214,19 +214,19 @@ export default {
       // };
       const media = async () => {
         try {
-          if (
-            this.status !== "MEETING" &&
-            this.status !== "" &&
-            !this.amIDead
-          ) {
-            await this.hands.send({ image: videoElement });
+          for (const member of this.roomMembers) {
+            if (member.id === this.myInfo.profile.id) {
+              if (member.die) {
+                console.log("죽었으니 손 인식 안함");
+                // this.handClose();
+                return;
+              }
+              if (this.status !== "MEETING" && this.status !== "") {
+                await this.hands.send({ image: videoElement });
+              }
+              requestAnimationFrame(media);
+            }
           }
-          if (this.amIDead) {
-            console.log("죽었으니 손 인식 안함");
-            this.handClose();
-            return;
-          }
-          this.animeFrame = requestAnimationFrame(media);
         } catch (e) {
           console.log(e);
         }
@@ -251,9 +251,9 @@ export default {
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
-        if (this.countDown < 3 && this.voteResult > 0) {
+        if (this.countDown < 2 && this.voteResult > 0) {
           this.countDown += 1;
-        } else if (this.countDown === 3) {
+        } else if (this.countDown === 2) {
           clearInterval(this.interval);
           this.$swal({
             icon: "success",
@@ -276,9 +276,9 @@ export default {
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
-        if (this.countDown < 3 && this.checkResult !== null) {
+        if (this.countDown < 2 && this.checkResult !== null) {
           this.countDown += 1;
-        } else if (this.countDown === 3) {
+        } else if (this.countDown === 2) {
           clearInterval(this.interval);
           // 스킬 사용이 아니며(밤이 아니며), O에 체크했을 경우
           if (this.status !== "NIGHT" && this.checkResult) {
@@ -389,9 +389,9 @@ export default {
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
-        if (this.countDown < 3 && this.punishmentResult !== null) {
+        if (this.countDown < 2 && this.punishmentResult !== null) {
           this.countDown += 1;
-        } else if (this.countDown === 3) {
+        } else if (this.countDown === 2) {
           clearInterval(this.interval);
           this.$root.gameSocket.emit(GameEvent.PUNISH, {
             agree: this.punishmentResult,
