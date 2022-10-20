@@ -6,18 +6,9 @@
 </template>
 <script>
 export default {
-  computed: {
-    roomMembers() {
-      return this.$store.state.stream.roomMembers ?? [];
-    },
-    myInfo() {
-      return this.$store.getters["user/getMyInfo"];
-    },
-    myJob() {
-      const me = this.roomMembers.find((e) => e.id == this.myInfo.id);
-
-      return me?.job;
-    },
+  prop: {
+    myJob: String,
+    default: "없음",
   },
 };
 </script>
