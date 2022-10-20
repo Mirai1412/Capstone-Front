@@ -100,7 +100,7 @@ export default {
         this.$refs.board.addLog(
           `게임이 시작되었습니다. 당신의 직업은 ${me.job}입니다`
         );
-        this.$refs.board.myJob = me.job;
+        this.$refs.board.grantJob(me.job);
       });
 
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {

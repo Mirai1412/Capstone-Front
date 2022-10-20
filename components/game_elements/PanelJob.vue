@@ -6,9 +6,10 @@
 </template>
 <script>
 export default {
-  prop: {
-    myJob: String,
-    default: "없음",
+  data() {
+    return {
+      myJob: "",
+    };
   },
 };
 </script>

@@ -186,8 +186,7 @@ export default {
                 results,
                 canvasElement,
                 canvasCtx,
-                true,
-                isAvailable
+                true
               );
               break;
             case "NIGHT":
@@ -257,12 +256,11 @@ export default {
       media();
     },
     changeVoteResult() {
-      const isAvailable = this.isAvailableVote(this.voteResult);
-      if (isAvailable !== 1) return;
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
-        if (this.countDown < 2 && this.voteResult > 0) {
+        const isAvailable = this.isAvailableVote(this.voteResult);
+        if (this.countDown < 2 && isAvailable === 1) {
           this.countDown += 1;
         } else if (this.countDown === 2) {
           clearInterval(this.interval);
@@ -397,8 +395,6 @@ export default {
       }, 1000);
     },
     changePunishmentResult() {
-      const isAvailable = this.isAvailableVote(this.voteResult);
-      if (isAvailable !== 1) return;
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {

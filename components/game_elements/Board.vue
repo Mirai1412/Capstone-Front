@@ -2,7 +2,7 @@
   <div class="flex pt-3 h-full">
     <PanelTurn :date="date" :status="status"></PanelTurn>
     <PanelLog ref="panel_log"></PanelLog>
-    <PanelJob :myJob="myJob"></PanelJob>
+    <PanelJob ref="panel_job"></PanelJob>
   </div>
 </template>
 <script>
@@ -19,12 +19,14 @@ export default {
     return {
       date: 0,
       status: "NIGHT",
-      myJob: "없음",
     };
   },
   methods: {
     addLog(message) {
       this.$refs.panel_log.addLog(message);
+    },
+    grantJob(job) {
+      this.$refs.panel_job.myJob = job;
     },
   },
 };
