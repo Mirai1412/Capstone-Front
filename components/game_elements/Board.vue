@@ -2,7 +2,7 @@
   <div class="flex pt-3 h-full">
     <PanelTurn :date="date" :status="status"></PanelTurn>
     <PanelLog ref="panel_log"></PanelLog>
-    <PanelJob></PanelJob>
+    <PanelJob :myJob="myJob"></PanelJob>
   </div>
 </template>
 <script>
@@ -19,6 +19,7 @@ export default {
     return {
       date: 0,
       status: "NIGHT",
+      myJob: "없음",
     };
   },
   methods: {

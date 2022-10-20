@@ -161,10 +161,17 @@ export default {
         canvasCtx.restore();
 
         if (this.isCognizing) {
+          const isAvailable = this.isAvailableVote(this.voteResult);
           switch (this.status) {
             case "VOTE":
               if (!this.isCheck) {
-                this.voteResult = vote(results, canvasElement, canvasCtx, true);
+                this.voteResult = vote(
+                  results,
+                  canvasElement,
+                  canvasCtx,
+                  true,
+                  isAvailable
+                );
               } else {
                 this.checkResult = check(
                   results,
@@ -179,7 +186,8 @@ export default {
                 results,
                 canvasElement,
                 canvasCtx,
-                true
+                true,
+                isAvailable
               );
               break;
             case "NIGHT":
@@ -189,7 +197,8 @@ export default {
                     results,
                     canvasElement,
                     canvasCtx,
-                    true
+                    true,
+                    isAvailable
                   );
                 } else {
                   this.checkResult = check(
@@ -248,6 +257,8 @@ export default {
       media();
     },
     changeVoteResult() {
+      const isAvailable = this.isAvailableVote(this.voteResult);
+      if (isAvailable !== 1) return;
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
@@ -386,6 +397,8 @@ export default {
       }, 1000);
     },
     changePunishmentResult() {
+      const isAvailable = this.isAvailableVote(this.voteResult);
+      if (isAvailable !== 1) return;
       this.countDown = 0;
       clearInterval(this.interval);
       this.interval = setInterval(() => {
@@ -424,6 +437,17 @@ export default {
       if (this.amIDead) {
         console.log("나는 죽었따");
         this.hands.close();
+      }
+    },
+    isAvailableVote(voteResult) {
+      if (voteResult === null) {
+        return -2;
+      } else if (voteResult > this.roomMembers.length || voteResult < 1) {
+        return 0;
+      } else if (this.roomMembers[voteResult - 1].die) {
+        return -1;
+      } else {
+        return 1;
       }
     },
   },
