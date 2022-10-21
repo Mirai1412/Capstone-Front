@@ -39,6 +39,7 @@ export default {
         if (result.isDenied) {
           // this.$Swal('Changes are not saved', '', 'info')
           // this.$router.push('/lobby');
+          this.$emit("leave");
           this.$router.push("/lobby");
         }
       });

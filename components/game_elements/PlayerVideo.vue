@@ -5,22 +5,22 @@
         class="justify-self-center mx-2 mb-3 w-full rounded border-[3px] relative"
         v-for="(s, index) in roomMembers"
         :class="`${s.speaking ? 'border-green-500' : 'border-white'}`"
-        :key="s.userId"
+        :key="s.id"
         @click.prevent.stop="handleClick($event, s)"
       >
         <div class="aspect-video">
           <div v-if="s.stream">
             <video
               v-if="s.nickname !== myInfo.profile.nickname"
-              :ref="'remote' + s.userId"
-              :id="'remote' + s.userId"
+              :ref="'remote' + s.id"
+              :id="'remote' + s.id"
               :src-object.prop.camel="s.stream"
               autoplay
             ></video>
             <video
               v-else
-              :ref="'remote' + s.userId"
-              :id="'remote' + s.userId"
+              :ref="'remote' + s.id"
+              :id="'remote' + s.id"
               :src-object.prop.camel="s.stream"
               autoplay
               muted
@@ -152,7 +152,7 @@ export default {
     },
     async handCognition(videoElement, canvasElement, canvasCtx) {
       // videoElement.style.display = "none";
-      let onResults = async (results) => {
+      let onResults = (results) => {
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         // 기준점을 지정한 크기(x,y)만큼 평행이동함
@@ -209,7 +209,15 @@ export default {
                 }
               }
               break;
+            default:
+              this.checkResult = null;
+              this.voteResult = null;
+              this.isCognizing = false;
+              break;
           }
+        } else {
+          this.checkResult = null;
+          this.voteResult = null;
         }
       };
 

@@ -9,15 +9,43 @@
       class="flex timer w-full items-center mr-2 px-3 rounded-r-full bg-orange-700"
     >
       <div class="overflow-hidden h-5 text-s flex rounded-full bg-green-100">
-        <div
+        <!-- <div
           class="text-center whitespace-nowrap justify-center bg-green-400 transition duration-1000 ease-linear"
           :style="{ width: `${percentage}%` }"
-        ></div>
+        ></div> -->
+        <ProgressBar :percentage="percentage"></ProgressBar>
       </div>
     </div>
   </div>
 </template>
 <script>
+import styled from "vue-styled-components";
+
+const ProgressBar = styled("div", { percentage: Number })`
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-text-opacity: 1;
+  --tw-bg-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  text-align: center;
+  white-space: nowrap;
+  justify-content: center;
+  background-color: ${(props) => {
+    return `${
+      props.percentage >= 80
+        ? "rgb(239 68 68 / var(--tw-bg-opacity))"
+        : props.percentage >= 50
+        ? "rgb(234 179 8 / var(--tw-bg-opacity))"
+        : "rgb(34 197 94 / var(--tw-bg-opacity))"
+    }`;
+  }};
+  width: ${(props) => {
+    return `${props.percentage}%`;
+  }};
+`;
+
 export default {
   props: {
     turnTime: {
@@ -28,6 +56,9 @@ export default {
       type: Number,
       required: true,
     },
+  },
+  components: {
+    ProgressBar,
   },
   computed: {
     percentage() {

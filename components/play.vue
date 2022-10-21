@@ -1,7 +1,7 @@
 <template lang="">
   <div class="flex flex-col items-center h-screen w-full">
     <div class="flex flex-col w-2/3 py-3 px-3 h-1/2">
-      <GameHeader ref="game_header"></GameHeader>
+      <GameHeader ref="game_header" @leave="leave"></GameHeader>
       <Board ref="board"></Board>
     </div>
     <PlayerVideo ref="player_video"></PlayerVideo>
@@ -35,6 +35,7 @@ export default {
     return {
       currentStatus: "NIGHT",
       currentDate: 0,
+      isGameEnd: false,
     };
   },
   methods: {
@@ -65,6 +66,7 @@ export default {
               break;
             case "MEETING":
               this.$refs.game_header.turnTime = 30;
+              this.$refs.player_video.isCognizing = false;
               this.$refs.player_video.isCheck = false;
               this.$refs.player_video.resetInterval();
               break;
@@ -86,6 +88,7 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.JOIN, (data) => {
         // if (data.join) {
+        console.log("JOIN", data);
         this.gameStart();
         // }
       });
@@ -106,13 +109,15 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.LEAVE, (data) => {
         console.log("LEAVE" + data);
+        this.$refs.board.addLog(`${data.message}`);
         this.$store.commit("stream/killMember", data.playerVideoNum);
       });
 
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {
         console.log("GAME_END", data);
+        this.isGameEnd = true;
         this.$refs.board.addLog(
-          `게임이 종료되었습니다. ${data.winner}팀이 승리하였습니다`
+          `게임이 종료되었습니다. ${data.win}팀이 승리하였습니다`
         );
         this.$refs.player_video.handClose();
         this.$swal({
@@ -121,6 +126,7 @@ export default {
           timer: 5000,
           timerProgressBar: true,
           showConfirmButton: false,
+          allowOutsideClick: false,
           backdrop: `
             ${
               data.win === "CITIZEN"
@@ -218,6 +224,7 @@ export default {
         });
       });
 
+      console.log("emit JOIN");
       this.$root.gameSocket.emit(GameEvent.JOIN, {
         roomId: this.$route.params.roomInfo.id,
       });
@@ -249,6 +256,11 @@ export default {
       this.$root.gameSocket.emit(GameEvent.POLICE, {
         playerVideoNum: vidNum,
       });
+    },
+    leave() {
+      if (!this.isGameEnd) {
+        this.$root.gameSocket.emit(GameEvent.LEAVE);
+      }
     },
   },
   mounted() {

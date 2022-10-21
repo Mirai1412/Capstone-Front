@@ -54,7 +54,7 @@ export const fingersCount = (
     //   lineWidth: 2,
     // });
   }
-  canvasCtx.restore();
+  // canvasCtx.restore();
 
   const { text, voteResult } = cognitionErrorCheck(
     rightHandLandmarks,
