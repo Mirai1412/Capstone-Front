@@ -4,14 +4,20 @@
       <div
         class="justify-self-center mx-2 mb-3 w-full rounded border-[3px] relative"
         v-for="(s, index) in roomMembers"
-        :class="`${s.speaking ? 'border-green-500' : 'border-white'}`"
+        :class="`${
+          s.die
+            ? 'border-red-500'
+            : s.speaking
+            ? 'border-green-500'
+            : 'border-white'
+        }`"
         :key="s.id"
         @click.prevent.stop="handleClick($event, s)"
       >
         <div class="aspect-video">
           <div v-if="s.stream">
             <video
-              v-if="s.nickname !== myInfo.profile.nickname"
+              v-if="s.nickname !== myInfo.profile.nickname && !s.die"
               :ref="'remote' + s.id"
               :id="'remote' + s.id"
               :src-object.prop.camel="s.stream"

@@ -99,7 +99,9 @@ export default {
         // 이곳에 플레이어 직업 배정 로직이 들어가야함
         this.$store.commit("stream/setRoomMembers", data.players);
         // find me from data.players
-        const me = data.players.find((player) => player.id === this.myInfo.id);
+        const me = data.players.find(
+          (player) => player.id === this.myInfo.profile.id
+        );
 
         this.$refs.board.addLog(
           `게임이 시작되었습니다. 당신의 직업은 ${me.job}입니다`
