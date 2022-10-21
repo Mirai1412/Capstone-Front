@@ -104,6 +104,11 @@ export default {
         this.$refs.board.grantJob(me.job);
       });
 
+      this.$root.gameSocket.on(GameEvent.LEAVE, (data) => {
+        console.log("LEAVE" + data);
+        this.$store.commit("stream/killMember", data.playerVideoNum);
+      });
+
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {
         console.log("GAME_END", data);
         this.$refs.board.addLog(
@@ -111,14 +116,14 @@ export default {
         );
         this.$refs.player_video.handClose();
         this.$swal({
-          title: `${data.team}팀의 승리입니다.`,
+          title: `${data.message}`,
           html: "잠시 후 게임을 종료하고 로비로 돌아갑니다.",
           timer: 5000,
           timerProgressBar: true,
           showConfirmButton: false,
           backdrop: `
             ${
-              data.team === "CITIZEN"
+              data.win === "CITIZEN"
                 ? "rgba(130,202,250,0.4)"
                 : "rgba(219,0,0,0.4)"
             }

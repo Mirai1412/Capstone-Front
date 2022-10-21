@@ -183,8 +183,6 @@ export const mutations = {
   // 유저의 죽음 처리
   killMember(state, data) {
     for (let i = 0; i < state.roomMembers.length; i++) {
-      console.log(state.roomMembers[i].nickname);
-      console.log(data);
       if (i + 1 === data) {
         Vue.set(state.roomMembers[i], "die", true);
         // stopMediaStream(state.roomMembers[i].stream);

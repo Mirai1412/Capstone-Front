@@ -20,15 +20,6 @@ export default {
       withCredentials: true,
       transports: ["websocket"],
     });
-
-    this.$root.gameSocket.on(GameEvent.LEAVE, (data) => {
-      console.log("LEAVE" + data);
-      // this.$store.commit("stream/setRoomMembers", data)
-    });
-
-    this.$root.gameSocket.on(GameEvent.GAMEEND, (data) => {
-      console.log("게임 엔드 발생");
-    });
   },
 
   computed: {
