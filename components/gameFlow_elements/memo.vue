@@ -96,30 +96,29 @@ export default {
       this.testLandmark[data.id] = data.landmarks;
     });
 
-    const myVideoElement = document.getElementById(
-      `remote${this.myInfo.profile.id}`
-    );
-
-    // 소켓 연결
-    // this.socket = io("http://localhost:3065/game", {
-    //   transports: ["websocket"],
-    // });
-    // 자기 비디오랑 캔버스
-    if (myVideoElement) {
-      // await this.handCognition();
-      const myCanvas = document.getElementsByClassName(
+    const main = async () => {
+      // 소켓 연결
+      // this.socket = io("http://localhost:3065/game", {
+      //   transports: ["websocket"],
+      // });
+      // 자기 비디오랑 캔버스
+      this.myVideo = document.getElementById(`remote${this.myInfo.profile.id}`);
+      this.myCanvas = document.getElementsByClassName(
         `output_canvas${this.myInfo.profile.id}`
       )[0];
-      const myCtx = myCanvas.getContext("2d");
-      await this.myFace(myVideoElement, myCanvas, myCtx);
-    }
-    // 타인의 스트림만큼 캔버스에 메모 그리기
-    console.log("roomMembers:" + JSON.stringify(this.roomMembers));
-    for (const data of this.roomMembers) {
-      if (data.id !== this.myInfo.profile.id) {
-        await this.faceMemo(data);
+      this.myCtx = this.myCanvas.getContext("2d");
+
+      // await this.handCognition();
+      await this.myFace();
+      // 타인의 스트림만큼 캔버스에 메모 그리기
+      console.log("roomMembers:" + JSON.stringify(this.roomMembers));
+      for (const data of this.roomMembers) {
+        if (data.id !== this.myInfo.profile.id) {
+          await this.faceMemo(data);
+        }
       }
-    }
+    };
+    main();
   },
   async beforeDestroy() {
     console.log("beforeunload");
@@ -311,39 +310,12 @@ export default {
               canvasWidth,
               canvasHeight
             );
-          } else {
-            const bottomRightx = landmarks.bottomRight[0];
-            const bottomRighty = landmarks.bottomRight[1];
-            const topLeftx = landmarks.topLeft[0];
-            const topLefty = landmarks.topLeft[1];
-
-            const imgCitizenHat = img.src.includes("citizen_hat");
-            const imgPoliceHat = img.src.includes("police_hat");
-            const imgDoctorHat = img.src.includes("doctor_hat");
-            const imgMafiaHat = img.src.includes("mafia_hat");
-
-            if (imgCitizenHat || imgPoliceHat || imgDoctorHat || imgMafiaHat) {
-              const canvasWidth =
-                bottomRightx - topLeftx + (bottomRightx - topLeftx) / 2;
-              const canvasHeight =
-                bottomRighty - topLefty + (bottomRighty - topLefty) / 2;
-              const canvasx =
-                topLeftx - canvasWidth / 2 + (bottomRightx - topLeftx) / 2;
-              const canvasy = topLefty - canvasHeight;
-              img.onload = canvasCtx.drawImage(
-                img,
-                canvasx,
-                canvasy,
-                canvasWidth,
-                canvasHeight
-              );
-            }
           }
-
-          canvasCtx.restore();
         }
-        this.userFaceInterval[id] = setInterval(detectFace, 30);
+
+        canvasCtx.restore();
       };
+      this.userFaceInterval[id] = setInterval(detectFace, 30);
     },
 
     memoJob(job, id) {

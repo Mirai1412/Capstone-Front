@@ -1,22 +1,28 @@
 <template lang="">
-  <div class="flex flex-col items-center h-screen w-full">
+  <div
+    class="flex flex-col items-center h-screen w-full"
+    :class="`${currentStatus === 'NIGHT' ? 'bg-night-time' : 'bg-day-time'}`"
+  >
     <div class="flex flex-col w-2/3 py-3 px-3 h-1/2">
       <GameHeader ref="game_header" @leave="leave"></GameHeader>
       <Board ref="board"></Board>
     </div>
     <PlayerVideo ref="player_video"></PlayerVideo>
+    <Audio ref="audio"></Audio>
   </div>
 </template>
 <script>
 import GameHeader from "@/components/game_elements/GameHeader.vue";
 import Board from "@/components/game_elements/Board.vue";
 import PlayerVideo from "@/components/game_elements/PlayerVideo.vue";
+import Audio from "@/components/gameFlow_elements/audio.vue";
 import { GameEvent } from "@/api/mafiaAPI";
 export default {
   components: {
     GameHeader,
     Board,
     PlayerVideo,
+    Audio,
   },
   computed: {
     myInfo() {
@@ -63,24 +69,81 @@ export default {
               this.$refs.player_video.isCognizing = true;
               this.$refs.player_video.isCheck = false;
               this.$refs.player_video.resetInterval();
+              this.$refs.audio.nightBgmEvent();
+              this.$swal({
+                imageUrl: require("~/assets/ingame/moon.svg"),
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: "Custom image",
+                title: "밤이 되었습니다",
+                html: "마피아, 의사, 경찰은 자신의 능력을 사용합니다.",
+                timer: 2000,
+                showConfirmButton: false,
+                backdrop: "rgba(0,0,0)",
+                background: "rgba(16,19,66)",
+                color: "#ffffff",
+              }).then((result) => {
+                /* Read more about handling dismissals below */
+              });
               break;
             case "MEETING":
               this.$refs.game_header.turnTime = 30;
               this.$refs.player_video.isCognizing = false;
               this.$refs.player_video.isCheck = false;
               this.$refs.player_video.resetInterval();
+              this.$refs.audio.morningBgmEvent();
+              this.$swal({
+                imageUrl: require("~/assets/ingame/sun.svg"),
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: "Custom image",
+                title: "아침이 되었습니다",
+                html: "자유롭게 대화하며 서로에 대해 알아가는 시간입니다.",
+                timer: 2000,
+                backdrop: "rgba(0,0,0)",
+                showConfirmButton: false,
+                showClass: {
+                  popup: "animate__animated animate__fadeOutUp",
+                },
+              }).then((result) => {
+                /* Read more about handling dismissals below */
+              });
               break;
             case "VOTE":
               this.$refs.game_header.turnTime = 30;
               this.$refs.player_video.isCognizing = true;
               this.$refs.player_video.isCheck = false;
               this.$refs.player_video.resetInterval();
+              this.$swal({
+                imageUrl: require("~/assets/ingame/vote.svg"),
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: "Custom image",
+                title: "투표를 시작합니다",
+                html: "마피아로 의심되는 유저를 지목합니다",
+                timer: 2000,
+                showConfirmButton: false,
+              }).then((result) => {
+                /* Read more about handling dismissals below */
+              });
               break;
             case "PUNISHMENT":
               this.$refs.game_header.turnTime = 30;
               this.$refs.player_video.isCognizing = true;
               this.$refs.player_video.isCheck = false;
               this.$refs.player_video.resetInterval();
+              this.$swal({
+                imageUrl: require("~/assets/ingame/punishment.svg"),
+                imageWidth: 100,
+                imageHeight: 100,
+                imageAlt: "Custom image",
+                title: "유저가 지목되었습니다",
+                html: "해당 유저에 대한 찬반투표를 시작합니다",
+                timer: 2000,
+                showConfirmButton: false,
+              }).then((result) => {
+                /* Read more about handling dismissals below */
+              });
               break;
           }
         }
@@ -139,7 +202,6 @@ export default {
         }).then((result) => {
           if (result.dismiss === this.$swal.DismissReason.timer) {
             this.$router.push("/lobby");
-            console.log("I was closed by the timer");
           }
         });
       });
@@ -149,6 +211,9 @@ export default {
         this.$refs.board.addLog(
           `Day ${this.currentDate} 투표 결과: ${data.message}`
         );
+        if (data.playerVideoNum) {
+          this.$refs.audio.punishmentEvent();
+        }
         this.$swal({
           title: "투표 결과",
           text: data.message,

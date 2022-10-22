@@ -1,5 +1,5 @@
 <template lang="">
-  <div class="border-2 border-green-400 bg-white w-3/5">
+  <div class="bg-black/70 text-white w-3/5">
     <div class="h-full flex flex-col overflow-auto" id="log_box">
       <div
         v-for="(message, index) in logs"

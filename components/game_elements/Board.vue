@@ -1,5 +1,7 @@
 <template lang="">
-  <div class="flex pt-3 h-full">
+  <div
+    class="flex mt-3 h-full rounded-xl overflow-hidden border-2 border-yellow-400"
+  >
     <PanelTurn :date="date" :status="status"></PanelTurn>
     <PanelLog ref="panel_log"></PanelLog>
     <PanelJob ref="panel_job"></PanelJob>
