@@ -338,6 +338,7 @@ export const GameEvent = {
   CURRENT_VOTE: "game:currentVote",
   GAME_END: "game:end",
   LANDMARK: "game:landmark",
+  SKILL: "game:skill",
 };
 
 export const UserEvent = {
