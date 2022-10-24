@@ -1,9 +1,9 @@
 <template lang="">
   <div
-    class="flex mt-3 h-full rounded-xl overflow-hidden border-2 border-yellow-400"
+    class="board_box flex mt-3 h-full rounded-xl overflow-hidden border-2 border-yellow-400"
   >
     <PanelTurn :date="date" :status="status"></PanelTurn>
-    <PanelLog ref="panel_log"></PanelLog>
+    <PanelLog :status="status" ref="panel_log"></PanelLog>
     <PanelJob ref="panel_job"></PanelJob>
   </div>
 </template>
@@ -30,7 +30,14 @@ export default {
     grantJob(job) {
       this.$refs.panel_job.myJob = job;
     },
+    setPunishVidNum(num) {
+      this.$refs.panel_log.vidNum = num;
+    },
   },
 };
 </script>
-<style lang=""></style>
+<style lang="scss" scoped>
+.board_box {
+  font-family: "Jua", sans-serif;
+}
+</style>

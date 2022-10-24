@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       turnTime: 60,
-      leftTime: 20,
+      leftTime: 60,
     };
   },
   methods: {

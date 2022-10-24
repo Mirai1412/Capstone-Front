@@ -7,8 +7,10 @@
       <div class="jobName bg-yellow-400 p-2 text-center font-bold">
         {{ info[myJob].name }}
       </div>
-      <div class="jobSkill p-1">{{ info[myJob].skill }}</div>
-      <div class="jobInformation p-1">{{ info[myJob].information }}</div>
+      <div class="overflow-auto">
+        <div class="jobSkill p-1">{{ info[myJob].skill }}</div>
+        <div class="jobInformation p-1">{{ info[myJob].information }}</div>
+      </div>
     </div>
   </div>
 </template>

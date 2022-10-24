@@ -42,6 +42,36 @@ export default {
       currentStatus: "NIGHT",
       currentDate: 0,
       isGameEnd: false,
+      alertContexts: {
+        NIGHT: {
+          title: "밤이 되었습니다",
+          content: "마피아, 의사, 경찰은 자신의 능력을 사용합니다.",
+          backdrop: "rgba(0,0,0,0.5)",
+          background: "rgba(16,19,66)",
+          color: "#ffffff",
+        },
+        MEETING: {
+          title: "아침이 되었습니다",
+          content: "자유롭게 대화하며 서로에 대해 알아가는 시간입니다.",
+          backdrop: "rgba(255,255,255,0.5)",
+          background: "rgba(255,255,255)",
+          color: "#000000",
+        },
+        PUNISHMENT: {
+          title: "유저가 지목되었습니다",
+          content: "해당 유저에 대한 찬반투표를 시작합니다",
+          backdrop: "rgba(0,0,0,0)",
+          background: "rgba(255,255,255)",
+          color: "#000000",
+        },
+        VOTE: {
+          title: "투표를 시작합니다",
+          content: "마피아로 의심되는 유저를 지목합니다",
+          backdrop: "rgba(0,0,0,0)",
+          background: "rgba(255,255,255)",
+          color: "#000000",
+        },
+      },
     };
   },
   methods: {
@@ -63,89 +93,30 @@ export default {
           this.$refs.board.status = data.status;
           this.$refs.player_video.status = data.status;
 
-          switch (data.status) {
-            case "NIGHT":
-              this.$refs.game_header.turnTime = 30;
-              this.$refs.player_video.isCognizing = true;
-              this.$refs.player_video.isCheck = false;
-              this.$refs.player_video.resetInterval();
-              this.$refs.audio.nightBgmEvent();
-              this.$swal({
-                imageUrl: require("~/assets/ingame/moon.svg"),
-                imageWidth: 100,
-                imageHeight: 100,
-                imageAlt: "Custom image",
-                title: "밤이 되었습니다",
-                html: "마피아, 의사, 경찰은 자신의 능력을 사용합니다.",
-                timer: 2000,
-                showConfirmButton: false,
-                backdrop: "rgba(0,0,0)",
-                background: "rgba(16,19,66)",
-                color: "#ffffff",
-              }).then((result) => {
-                /* Read more about handling dismissals below */
-              });
-              break;
-            case "MEETING":
-              this.$refs.game_header.turnTime = 30;
-              this.$refs.player_video.isCognizing = false;
-              this.$refs.player_video.isCheck = false;
-              this.$refs.player_video.resetInterval();
-              this.$refs.audio.morningBgmEvent();
-              this.$swal({
-                imageUrl: require("~/assets/ingame/sun.svg"),
-                imageWidth: 100,
-                imageHeight: 100,
-                imageAlt: "Custom image",
-                title: "아침이 되었습니다",
-                html: "자유롭게 대화하며 서로에 대해 알아가는 시간입니다.",
-                timer: 2000,
-                backdrop: "rgba(0,0,0)",
-                showConfirmButton: false,
-                showClass: {
-                  popup: "animate__animated animate__fadeOutUp",
-                },
-              }).then((result) => {
-                /* Read more about handling dismissals below */
-              });
-              break;
-            case "VOTE":
-              this.$refs.game_header.turnTime = 30;
-              this.$refs.player_video.isCognizing = true;
-              this.$refs.player_video.isCheck = false;
-              this.$refs.player_video.resetInterval();
-              this.$swal({
-                imageUrl: require("~/assets/ingame/vote.svg"),
-                imageWidth: 100,
-                imageHeight: 100,
-                imageAlt: "Custom image",
-                title: "투표를 시작합니다",
-                html: "마피아로 의심되는 유저를 지목합니다",
-                timer: 2000,
-                showConfirmButton: false,
-              }).then((result) => {
-                /* Read more about handling dismissals below */
-              });
-              break;
-            case "PUNISHMENT":
-              this.$refs.game_header.turnTime = 30;
-              this.$refs.player_video.isCognizing = true;
-              this.$refs.player_video.isCheck = false;
-              this.$refs.player_video.resetInterval();
-              this.$swal({
-                imageUrl: require("~/assets/ingame/punishment.svg"),
-                imageWidth: 100,
-                imageHeight: 100,
-                imageAlt: "Custom image",
-                title: "유저가 지목되었습니다",
-                html: "해당 유저에 대한 찬반투표를 시작합니다",
-                timer: 2000,
-                showConfirmButton: false,
-              }).then((result) => {
-                /* Read more about handling dismissals below */
-              });
-              break;
+          this.$refs.game_header.turnTime = data.totalTime;
+          this.$refs.player_video.isCognizing = data.status !== "MEETING";
+          this.$refs.player_video.isCheck = false;
+          this.$refs.player_video.resetInterval();
+
+          if (data.status === "MEETING") {
+            this.$refs.audio.nightBgmEvent();
+          } else if (data.status === "NIGHT") {
+            this.$refs.audio.morningBgmEvent();
           }
+
+          this.$swal({
+            imageUrl: require("~/assets/ingame/moon.svg"),
+            imageWidth: 150,
+            imageHeight: 150,
+            imageAlt: "Custom image",
+            title: this.alertContexts[data.status].title,
+            html: this.alertContexts[data.status].content,
+            timer: 1500,
+            showConfirmButton: false,
+            backdrop: this.alertContexts[data.status].backdrop,
+            background: this.alertContexts[data.status].background,
+            color: this.alertContexts[data.status].color,
+          });
         }
       });
 
@@ -166,24 +137,29 @@ export default {
           (player) => player.id === this.myInfo.profile.id
         );
 
-        this.$refs.board.addLog(
-          `게임이 시작되었습니다. 당신의 직업은 ${me.job}입니다`
-        );
+        this.$refs.board.addLog({
+          color: "text-yellow-500",
+          message: `게임이 시작되었습니다. 당신의 직업은 ${me.job}입니다`,
+        });
         this.$refs.board.grantJob(me.job);
       });
 
       this.$root.gameSocket.on(GameEvent.LEAVE, (data) => {
         console.log("LEAVE" + data);
-        this.$refs.board.addLog(`${data.message}`);
+        this.$refs.board.addLog({
+          color: "text-yellow-500",
+          message: data.message,
+        });
         this.$store.commit("stream/killMember", data.playerVideoNum);
       });
 
       this.$root.gameSocket.on(GameEvent.GAME_END, (data) => {
         console.log("GAME_END", data);
         this.isGameEnd = true;
-        this.$refs.board.addLog(
-          `게임이 종료되었습니다. ${data.win}팀이 승리하였습니다`
-        );
+        this.$refs.board.addLog({
+          color: "text-blue-500",
+          message: `게임이 종료되었습니다. ${data.win}팀이 승리하였습니다`,
+        });
         this.$refs.player_video.handClose();
         this.$swal({
           title: `${data.message}`,
@@ -208,11 +184,12 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.VOTE, (data) => {
         console.log("VOTE", data);
-        this.$refs.board.addLog(
-          `Day ${this.currentDate} 투표 결과: ${data.message}`
-        );
+        this.$refs.board.addLog({
+          message: `Day ${this.currentDate} 투표 결과: ${data.message}`,
+        });
         if (data.playerVideoNum) {
           this.$refs.audio.punishmentEvent();
+          this.$refs.board.setPunishVidNum(data.playerVideoNum);
         }
         this.$swal({
           title: "투표 결과",
@@ -225,14 +202,19 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.PUNISH, (data) => {
         console.log("PUNISH", data);
-        this.$refs.board.addLog(
-          `Day ${this.currentDate} 처형 결과: ${data.message}`
-        );
         if (data.result) {
           if (data.playerVideoNum === this.myVideoNum) {
             this.$refs.player_video.amIDead = true;
           }
+          this.$refs.board.addLog({
+            color: "text-red-500",
+            message: `Day ${this.currentDate} 처형 결과: ${data.message}`,
+          });
           this.$store.commit("stream/killMember", data.playerVideoNum);
+        } else {
+          this.$refs.board.addLog({
+            message: `Day ${this.currentDate} 처형 결과: ${data.message}`,
+          });
         }
         this.$swal({
           title: "처형 결과",
@@ -245,8 +227,11 @@ export default {
 
       this.$root.gameSocket.on(GameEvent.SKILL, (data) => {
         console.log("SKILL", data);
-        this.$refs.board.addLog(`Day ${this.currentDate}: ${data.message}`);
         if (data.die) {
+          this.$refs.board.addLog({
+            color: "text-red-500",
+            message: `Day ${this.currentDate}: ${data.message}`,
+          });
           if (data.playerVideoNum === this.myVideoNum) {
             this.$refs.player_video.amIDead = true;
           }
@@ -255,15 +240,39 @@ export default {
           this.$swal({
             title: "사망자 발생",
             text: data.message,
-            icon: "warning",
+            imageUrl: require("~/assets/ingame/murder.svg"),
+            imageWidth: 150,
+            imageHeight: 150,
+            imageAlt: "Custom image",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else if (data.message.startsWith("의사가")) {
+          this.$refs.board.addLog({
+            color: "text-blue-500",
+            message: `Day ${this.currentDate}: ${data.message}`,
+          });
+          this.$swal({
+            title: "사망자 없음",
+            text: data.message,
+            imageUrl: require("~/assets/ingame/save.svg"),
+            imageWidth: 150,
+            imageHeight: 150,
+            imageAlt: "Custom image",
             timer: 2000,
             showConfirmButton: false,
           });
         } else {
+          this.$refs.board.addLog({
+            message: `Day ${this.currentDate}: ${data.message}`,
+          });
           this.$swal({
             title: "사망자 없음",
             text: data.message,
-            icon: "success",
+            imageUrl: require("~/assets/ingame/dove3.svg"),
+            imageWidth: 150,
+            imageHeight: 150,
+            imageAlt: "Custom image",
             timer: 2000,
             showConfirmButton: false,
           });
@@ -271,58 +280,27 @@ export default {
       });
 
       this.$root.gameSocket.on(GameEvent.POLICE, (data) => {
-        this.$refs.board.addLog(
-          `Day ${this.currentDate} 경찰 능력 사용 결과: ${data.message}`
-        );
+        this.$refs.board.addLog({
+          color: "text-green-500",
+          message: `Day ${this.currentDate} 경찰 능력 사용 결과: ${data.message}`,
+        });
         this.$swal({
           imageUrl: require(`~/assets/sidebar/${data.player.job.toLowercase()}.svg`),
-          imageWidth: 100,
-          imageHeight: 100,
+          imageWidth: 150,
+          imageHeight: 150,
           imageAlt: "Custom image",
           title: data.player.nickname + "을(를) 수사했습니다.",
           html: `<p>${data.message}</p>`,
           timer: 2000,
           showConfirmButton: false,
-        }).then((result) => {
-          /* Read more about handling dismissals below */
-          if (result.dismiss === this.$swal.DismissReason.timer) {
-            console.log("skill 결과 출력");
-          }
         });
       });
-
-      console.log("emit JOIN");
       this.$root.gameSocket.emit(GameEvent.JOIN, {
         roomId: this.$route.params.roomInfo.id,
       });
     },
     gameStart() {
       this.$root.gameSocket.emit(GameEvent.START);
-    },
-    vote(vidNum) {
-      this.$root.gameSocket.emit(GameEvent.VOTE, {
-        playerVideoNum: vidNum,
-      });
-    },
-    punish(bool) {
-      this.$root.gameSocket.emit(GameEvent.PUNISH, {
-        agree: bool,
-      });
-    },
-    mafia(vidNum) {
-      this.$root.gameSocket.emit(GameEvent.MAFIA, {
-        playerVideoNum: vidNum,
-      });
-    },
-    doctor(vidNum) {
-      this.$root.gameSocket.emit(GameEvent.DOCTOR, {
-        playerVideoNum: vidNum,
-      });
-    },
-    police(vidNum) {
-      this.$root.gameSocket.emit(GameEvent.POLICE, {
-        playerVideoNum: vidNum,
-      });
     },
     leave() {
       if (!this.isGameEnd) {

@@ -45,14 +45,14 @@ export const fingersCount = (
     }
 
     // 랜드마크대로 손 그림
-    // drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-    //   color: "#00FF00",
-    //   lineWidth: 5,
-    // });
-    // drawLandmarks(canvasCtx, landmarks, {
-    //   color: "#FF0000",
-    //   lineWidth: 2,
-    // });
+    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+      color: "#00FF00",
+      lineWidth: 5,
+    });
+    drawLandmarks(canvasCtx, landmarks, {
+      color: "#FF0000",
+      lineWidth: 2,
+    });
   }
   // canvasCtx.restore();
 
