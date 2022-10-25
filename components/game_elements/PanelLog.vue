@@ -46,7 +46,9 @@ export default {
     addLog(message) {
       this.logs.push(message);
       let logBox = document.getElementById("log_box");
-      logBox.scrollTop = logBox.scrollHeight;
+      if (logBox) {
+        logBox.scrollTop = logBox.scrollHeight;
+      }
     },
   },
   mounted() {

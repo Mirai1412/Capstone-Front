@@ -286,12 +286,12 @@ export default {
           message: `Day ${this.currentDate} 경찰 능력 사용 결과: ${data.message}`,
         });
         this.$swal({
-          imageUrl: require(`~/assets/sidebar/${data.player.job.toLowercase()}.svg`),
+          imageUrl: require(`~/assets/sidebar/${data.player.job.toLowerCase()}.svg`),
           imageWidth: 150,
           imageHeight: 150,
           imageAlt: "Custom image",
           title: data.player.nickname + "을(를) 수사했습니다.",
-          html: `<p>${data.message}</p>`,
+          html: data.message,
           timer: 2000,
           showConfirmButton: false,
         });
