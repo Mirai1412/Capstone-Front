@@ -17,7 +17,11 @@
         <div class="aspect-video">
           <div v-if="s.stream">
             <video
-              v-if="s.nickname !== myInfo.profile.nickname && !s.die"
+              v-if="
+                status !== 'NIGHT' &&
+                s.nickname !== myInfo.profile.nickname &&
+                !s.die
+              "
               :ref="'remote' + s.id"
               :id="'remote' + s.id"
               :src-object.prop.camel="s.stream"

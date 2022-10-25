@@ -98,9 +98,9 @@ export default {
           this.$refs.player_video.resetInterval();
 
           if (data.status === "MEETING") {
-            this.$refs.audio.nightBgmEvent();
-          } else if (data.status === "NIGHT") {
             this.$refs.audio.morningBgmEvent();
+          } else if (data.status === "NIGHT") {
+            this.$refs.audio.nightBgmEvent();
           }
 
           this.$swal({
@@ -189,7 +189,6 @@ export default {
           message: `Day ${this.currentDate} 투표 결과: ${data.message}`,
         });
         if (data.playerVideoNum) {
-          this.$refs.audio.punishmentEvent();
           this.$refs.board.setPunishVidNum(data.playerVideoNum);
         }
         this.$swal({
@@ -204,6 +203,7 @@ export default {
       this.$root.gameSocket.on(GameEvent.PUNISH, (data) => {
         console.log("PUNISH", data);
         if (data.result) {
+          this.$refs.audio.punishmentEvent();
           if (data.playerVideoNum === this.myVideoNum) {
             this.$refs.player_video.amIDead = true;
           }
