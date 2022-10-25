@@ -1,15 +1,15 @@
 <template lang="">
   <div class="bg-white w-1/5 h-full">
-    <div class="gameJobBox">
+    <div class="gameJobBox flex flex-col h-full">
       <div class="jobImage w-full p-3">
         <img :src="imageSrc[myJob]" />
       </div>
       <div class="jobName bg-yellow-400 p-2 text-center font-bold">
         {{ info[myJob].name }}
       </div>
-      <div class="overflow-auto">
-        <div class="jobSkill p-1">{{ info[myJob].skill }}</div>
-        <div class="jobInformation p-1">{{ info[myJob].information }}</div>
+      <div class="overflow-auto flex-1">
+        <p class="jobSkill p-1">{{ info[myJob].skill }}</p>
+        <p class="jobInformation p-1">{{ info[myJob].information }}</p>
       </div>
     </div>
   </div>

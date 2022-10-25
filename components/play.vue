@@ -49,27 +49,26 @@ export default {
           backdrop: "rgba(0,0,0,0.5)",
           background: "rgba(16,19,66)",
           color: "#ffffff",
+          imageUrl: require("~/assets/ingame/moon.svg"),
         },
         MEETING: {
           title: "아침이 되었습니다",
           content: "자유롭게 대화하며 서로에 대해 알아가는 시간입니다.",
           backdrop: "rgba(255,255,255,0.5)",
-          background: "rgba(255,255,255)",
           color: "#000000",
+          imageUrl: require("~/assets/ingame/sun.svg"),
         },
         PUNISHMENT: {
           title: "유저가 지목되었습니다",
           content: "해당 유저에 대한 찬반투표를 시작합니다",
-          backdrop: "rgba(0,0,0,0)",
-          background: "rgba(255,255,255)",
           color: "#000000",
+          imageUrl: require("~/assets/ingame/punishment.svg"),
         },
         VOTE: {
           title: "투표를 시작합니다",
           content: "마피아로 의심되는 유저를 지목합니다",
-          backdrop: "rgba(0,0,0,0)",
-          background: "rgba(255,255,255)",
           color: "#000000",
+          imageUrl: require("~/assets/ingame/vote.svg"),
         },
       },
     };
@@ -105,7 +104,7 @@ export default {
           }
 
           this.$swal({
-            imageUrl: require("~/assets/ingame/moon.svg"),
+            imageUrl: this.alertContexts[data.status].imageUrl,
             imageWidth: 150,
             imageHeight: 150,
             imageAlt: "Custom image",
@@ -113,8 +112,10 @@ export default {
             html: this.alertContexts[data.status].content,
             timer: 1500,
             showConfirmButton: false,
-            backdrop: this.alertContexts[data.status].backdrop,
-            background: this.alertContexts[data.status].background,
+            backdrop:
+              this.alertContexts[data.status].backdrop || "rgba(0,0,0,0)",
+            background:
+              this.alertContexts[data.status].background || "rgba(255,255,255)",
             color: this.alertContexts[data.status].color,
           });
         }

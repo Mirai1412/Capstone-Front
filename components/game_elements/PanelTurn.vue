@@ -1,12 +1,12 @@
 <template lang="">
-  <div class="bg-white w-1/5">
+  <div class="bg-white w-1/5 flex flex-col h-full">
     <div class="p-1 bg-yellow-400 text-center font-extrabold text-2xl">
       Day {{ date }}
     </div>
     <div class="w-full p-3">
       <img :src="imageSrc[status]" alt="" />
     </div>
-    <div class="p-2">{{ info[status].information }}</div>
+    <div class="p-2 overflow-auto flex-1">{{ info[status].information }}</div>
   </div>
 </template>
 <script>
