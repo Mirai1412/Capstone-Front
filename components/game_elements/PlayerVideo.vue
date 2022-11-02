@@ -7,7 +7,7 @@
         :class="`${
           s.die
             ? 'border-red-500'
-            : s.speaking
+            : s.speaking && status !== 'NIGHT'
             ? 'border-green-500'
             : 'border-white'
         }`"
