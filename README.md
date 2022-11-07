@@ -1,7 +1,5 @@
 # Fafia (CapstoneFront)
 
----
-
 ## 개요
 
 Fafia는 온라인 화상 마피아 게임입니다.
