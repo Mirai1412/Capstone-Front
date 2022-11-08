@@ -2,7 +2,7 @@
 
 ## 개요
 
-Fafia는 온라인 화상 마피아 게임입니다.   
+Fafia는 온라인 화상 마피아 게임입니다.  
 웹 환경에서 친구들과 함께 같은 공간에 있는 것 처럼 얼굴을 보며 마피아 게임을 즐길 수 있습니다.
 
 ## 셋업
@@ -26,7 +26,13 @@ npm run dev
 Nuxt
 
 # Libraries
-tensorflow.js, mediapipe, nuxt-socket-io, vue-styled-components, tailwindCSS
+tensorflow.js, mediapipe - 손 및 얼굴 인식과 그에 따른 상호작용을 구현하기 위해 사용
+
+nuxt-socket-io - 게임 내・외부에서 클라이언트와 서버의 통신을 위해 사용 (채팅, 방 목록 불러오기, 게임 진행 등등)
+
+vue-styled-components - 특정 컴포넌트 구현을 위해 사용
+
+tailwindCSS - 전체적인 CSS에 적용
 
 and more...
 ```
